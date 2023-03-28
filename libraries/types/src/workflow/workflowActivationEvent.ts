@@ -1,40 +1,39 @@
 export type Event =
-    "issue_comment"
-    | "label"
-    | "issues"
-    | "push"
-    | "pull_request"
-    | "pull_request_target"
-    | "schedule"
-    | string
+  | 'issue_comment'
+  | 'label'
+  | 'issues'
+  | 'push'
+  | 'pull_request'
+  | 'pull_request_target'
+  | 'schedule'
+  | string;
 
-
-export type ChoiceType = "string" | "boolean" | "choice" | "environment"
+export type ChoiceType = 'string' | 'boolean' | 'choice' | 'environment';
 
 export interface BaseInput<U extends ChoiceType, T> {
-    description: string
-    required?: boolean
-    type: U
-    default?: T
+  description: string;
+  required?: boolean;
+  type: U;
+  default?: T;
 }
 
-export type ChoiceInput = BaseInput<"choice", string> & {
-    options: string[]
-}
+export type ChoiceInput = BaseInput<'choice', string> & {
+  options: string[];
+};
 
-export type BooleanInput = BaseInput<"boolean", boolean>
+export type BooleanInput = BaseInput<'boolean', boolean>;
 
-export type StringInput = BaseInput<"string", string>
+export type StringInput = BaseInput<'string', string>;
 
-export type EnvironmentInput = BaseInput<"environment", string>
+export type EnvironmentInput = BaseInput<'environment', string>;
 
-export type WorkflowInput = ChoiceInput | BooleanInput | StringInput | EnvironmentInput
+export type WorkflowInput = ChoiceInput | BooleanInput | StringInput | EnvironmentInput;
 
 /**
  * @Deprecated
  */
 export interface OnWorkflowDispatch {
-    inputs: { [inputId: string]: WorkflowInput }
+  inputs: { [inputId: string]: WorkflowInput };
 }
 
 /**
@@ -49,9 +48,9 @@ export type OnSingleEvent = string;
  * If you specify multiple events, only one of those events needs to occur to trigger your workflow. If multiple
  * triggering events for your workflow occur at the same time, multiple workflow runs will be triggered.
  */
-export type OnMultipleEvents = OnSingleEvent[]
+export type OnMultipleEvents = OnSingleEvent[];
 
-export type LabelType = string
+export type LabelType = string;
 
 /**
  * Some events have activity types that give you more control over when your workflow should run.
@@ -82,24 +81,24 @@ export type LabelType = string
  * @Deprecated
  */
 export interface OnActivityType {
-    [label: Event]: {
-        types: LabelType | LabelType[]
-    }
+  [label: Event]: {
+    types: LabelType | LabelType[];
+  };
 }
 
 export interface PathFilter {
-    path?: string
-    ignorePath?: string
+  path?: string;
+  ignorePath?: string;
 }
 
 export interface BranchFilter {
-    branches?: string
-    branchesIgnore?: string
+  branches?: string;
+  branchesIgnore?: string;
 }
 
 export interface TagFilter {
-    tags?: string
-    tagsIgnore?: string
+  tags?: string;
+  tagsIgnore?: string;
 }
 
 /**
@@ -110,38 +109,37 @@ export interface TagFilter {
  * @Deprecated
  */
 export interface OnFilters {
-    pull_request: BranchFilter | PathFilter
-    pull_request_target: BranchFilter | PathFilter
-    push: BranchFilter | PathFilter | TagFilter
-    schedule: { cron: string }[]
+  pull_request: BranchFilter | PathFilter;
+  pull_request_target: BranchFilter | PathFilter;
+  push: BranchFilter | PathFilter | TagFilter;
+  schedule: { cron: string }[];
 }
 
 /**
  * @Deprecated
  */
 export interface OnWorkflowCall {
-    inputs: { [inputId: string]: WorkflowInput }
-    outputs: {
-        [outputId: string]: {
-            [key: string]: {
-                description?: string,
-                value: string
-            }
-        }
-    }
-    secrets: {
-        [secretId: string]: {
-            description: string
-            required?: boolean
-        }
-    }
+  inputs: { [inputId: string]: WorkflowInput };
+  outputs: {
+    [outputId: string]: {
+      [key: string]: {
+        description?: string;
+        value: string;
+      };
+    };
+  };
+  secrets: {
+    [secretId: string]: {
+      description: string;
+      required?: boolean;
+    };
+  };
 }
 
 /**
  * @Deprecated
  */
 export type OnWorkflowRun = {
-    workflows: string[]
-    types: string[]
-} & BranchFilter
-
+  workflows: string[];
+  types: string[];
+} & BranchFilter;

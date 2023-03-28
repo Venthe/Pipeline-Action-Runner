@@ -1,2 +1,2 @@
 export * from './contextSnapshot';
-export {GerritEventSnapshot} from "./gerritEventSnapshot";
+export { GerritEventSnapshot } from './gerritEventSnapshot';

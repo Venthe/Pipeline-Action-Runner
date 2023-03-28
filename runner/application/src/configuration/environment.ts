@@ -27,7 +27,7 @@ export interface PipelineEnvironmentVariables {
   PIPELINE_DOCKER_URL: string;
 }
 
-export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables
+export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables;
 
 export const prepareDefaultEnvironmentVariables = (): RunnerEnvironmentVariables => {
   const runnerEnvs: RunnerEnvironmentVariables = {
@@ -44,15 +44,14 @@ export const prepareDefaultEnvironmentVariables = (): RunnerEnvironmentVariables
 
   return {
     ...runnerEnvs,
-    ...loadEnvFiles(runnerEnvs.RUNNER_ENV_DIRECTORY
-    )
+    ...loadEnvFiles(runnerEnvs.RUNNER_ENV_DIRECTORY)
   };
 };
 
 function loadEnvFiles(envDirectory: string): { [key: string]: string | undefined } {
-  let env: { [key: string]: string | undefined } = {};
+  const env: { [key: string]: string | undefined } = {};
   const files = fs.readdirSync(envDirectory);
-  files.forEach(file => {
+  files.forEach((file) => {
     const parsedEnvironmentFile = loadEnvironmentFile(`${envDirectory}/${file}`);
     Object.keys(parsedEnvironmentFile).forEach((key) => {
       env[key] = parsedEnvironmentFile[key];

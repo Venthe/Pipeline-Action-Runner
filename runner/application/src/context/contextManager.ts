@@ -21,19 +21,24 @@ export class ContextManager<T extends GerritEventSnapshot & object = GerritEvent
   private steps?: StepsResultSnapshot;
 
   private constructor({
-                        environmentVariables,
-                        ...rest
-                      }: { environmentVariables: ContextEnvironmentVariables, inputs?: Inputs }) {
+    environmentVariables,
+    ...rest
+  }: {
+    environmentVariables: ContextEnvironmentVariables;
+    inputs?: Inputs;
+  }) {
     this.environmentVariables = environmentVariables;
     ContextManager.updateProcessEnvironmentVariables(environmentVariables);
     this.secretsManager = SecretsManager.create(this.environmentVariables.RUNNER_SECRETS_DIRECTORY);
 
     this.event = loadYamlFile<T>(`${environmentVariables.RUNNER_METADATA_DIRECTORY}/event.yaml`);
-    this.inputs = {...(rest.inputs || {}), ...(this.event?.additionalProperties?.inputs || {})};
+    this.inputs = { ...(rest.inputs || {}), ...(this.event?.additionalProperties?.inputs || {}) };
   }
 
-  private static updateProcessEnvironmentVariables(environmentVariables: ContextEnvironmentVariables) {
-    Object.keys(environmentVariables).forEach(key => {
+  private static updateProcessEnvironmentVariables(
+    environmentVariables: ContextEnvironmentVariables
+  ) {
+    Object.keys(environmentVariables).forEach((key) => {
       process.env[key] = environmentVariables[key];
     });
   }
@@ -49,7 +54,8 @@ export class ContextManager<T extends GerritEventSnapshot & object = GerritEvent
       internal: {
         event: this.event,
         workspace: this.environmentVariables.RUNNER_WORKSPACE_DIRECTORY,
-        projectUrl: (this.event as any)?.metadata?.url ?? this.environmentVariables.PIPELINE_GERRIT_URL,
+        projectUrl:
+          (this.event as any)?.metadata?.url ?? this.environmentVariables.PIPELINE_GERRIT_URL,
         gerritUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
         dockerUrl: this.environmentVariables.PIPELINE_DOCKER_URL,
         nexusUrl: this.environmentVariables.PIPELINE_NEXUS_URL,
@@ -60,23 +66,28 @@ export class ContextManager<T extends GerritEventSnapshot & object = GerritEvent
         eventName: this.event.type,
         job: this.environmentVariables.PIPELINE_JOB_NAME
       },
-      ...({ inputs: this.inputs }),
-      ...({ steps: this.steps })
+      ...{ inputs: this.inputs },
+      ...{ steps: this.steps }
     } as any;
   }
 
   appendEnvironmentVariables(env: { [p: string]: string | undefined } | undefined) {
-    Object.keys(env || {}).forEach(key => {
+    Object.keys(env || {}).forEach((key) => {
       this.environmentVariables[key] = (env || {})[key];
     });
 
     ContextManager.updateProcessEnvironmentVariables(this.environmentVariables);
   }
 
-  getRunnerDirectories = (): string[] => (Object.keys(this.environmentVariables)
-    .filter(key => key.toLowerCase().startsWith('RUNNER_'.toLowerCase()) && key.toLowerCase().endsWith('_DIRECTORY'.toLowerCase()))
-    .map(key => this.environmentVariables[key])
-    .filter(value => value !== undefined) as string[]);
+  getRunnerDirectories = (): string[] =>
+    Object.keys(this.environmentVariables)
+      .filter(
+        (key) =>
+          key.toLowerCase().startsWith('RUNNER_'.toLowerCase()) &&
+          key.toLowerCase().endsWith('_DIRECTORY'.toLowerCase())
+      )
+      .map((key) => this.environmentVariables[key])
+      .filter((value) => value !== undefined) as string[];
 
   addEnv = (key: string, value: any) => {
     this.environmentVariables[key] = value;

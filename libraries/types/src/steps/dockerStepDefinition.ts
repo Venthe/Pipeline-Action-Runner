@@ -1,8 +1,7 @@
-import {ActionStepDefinition} from "./actionStepDefinition";
+import { ActionStepDefinition } from './actionStepDefinition';
 
-export interface DockerStepDefinition extends ActionStepDefinition<{
-    [key: string]: string | undefined
+export type DockerStepDefinition = ActionStepDefinition<{
+    [key: string]: string | undefined;
     /** in docker **/
-    entrypoint?: string
-}> {
-}
+    entrypoint?: string;
+  }>

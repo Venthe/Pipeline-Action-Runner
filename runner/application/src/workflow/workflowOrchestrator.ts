@@ -2,12 +2,14 @@ import { ContextSnapshot, Workflow } from '@pipeline/types';
 import { JobRunner, SingleJobResult } from '../jobs/jobRunner';
 import { ContextManager } from '../context/contextManager';
 import { loadYamlFile, normalizeEvent } from '../utilities';
-import { PipelineEnvironmentVariables, prepareDefaultEnvironmentVariables } from '../configuration/environment';
-import {shell, shellMany} from '@pipeline/process';
+import {
+  PipelineEnvironmentVariables,
+  prepareDefaultEnvironmentVariables
+} from '../configuration/environment';
+import { shellMany } from '@pipeline/process';
 import { title } from '@pipeline/utilities';
 import { renderTemplate } from 'utilities/template';
-import {checkoutCommands} from "@pipeline/core";
-import { info } from '@pipeline/core';
+import { checkoutCommands, info } from '@pipeline/core';
 
 export class WorkflowOrchestrator {
   private readonly contextManager: ContextManager;
@@ -22,7 +24,9 @@ export class WorkflowOrchestrator {
   }
 
   private constructor(readonly env: PipelineEnvironmentVariables) {
-    this.contextManager = ContextManager.forWorkflow({ environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() } });
+    this.contextManager = ContextManager.forWorkflow({
+      environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() }
+    });
   }
 
   private async postConstruct() {
@@ -35,30 +39,40 @@ export class WorkflowOrchestrator {
     info(` Workflow name: ${this.workflow.name}`);
     info(` Workflow run name: ${this.workflowRunName}`);
 
-    this.jobRunner = this.prepareJobRunner(this.contextManager.contextSnapshot.internal.job, this.contextManager);
+    this.jobRunner = this.prepareJobRunner(
+      this.contextManager.contextSnapshot.internal.job,
+      this.contextManager
+    );
   }
 
   private async createRequiredDirectories() {
-    await shellMany(this.contextManager.getRunnerDirectories().map(directory => `mkdir --parents ${directory}`), { silent: true });
+    await shellMany(
+      this.contextManager.getRunnerDirectories().map((directory) => `mkdir --parents ${directory}`),
+      { silent: true }
+    );
   }
 
   private static async downloadPipelines(contextSnapshot: ContextSnapshot) {
     const projectUrl = `${contextSnapshot.internal.projectUrl}/${contextSnapshot.internal.event.metadata.projectName}`;
-    await shellMany(checkoutCommands(
-        {
-          repository: projectUrl,
-          revision: contextSnapshot.internal.event.metadata.revision,
-          options: {
-            branchName: contextSnapshot.internal.event.metadata.branchName,
-            depth: 1,
-            quiet: false,
-            sparseCheckout: [".pipeline/"]
-          }
+    await shellMany(
+      checkoutCommands({
+        repository: projectUrl,
+        revision: contextSnapshot.internal.event.metadata.revision,
+        options: {
+          branchName: contextSnapshot.internal.event.metadata.branchName,
+          depth: 1,
+          quiet: false,
+          sparseCheckout: ['.pipeline/']
         }
-    ), { cwd: contextSnapshot.internal.pipelinesDirectory });
+      }),
+      { cwd: contextSnapshot.internal.pipelinesDirectory }
+    );
   }
 
-  private static loadWorkflow = (contextSnapshot: ContextSnapshot) => (loadYamlFile<Workflow>(`${contextSnapshot.internal.pipelinesDirectory}/.pipeline/workflows/${contextSnapshot.internal.workflow}`));
+  private static loadWorkflow = (contextSnapshot: ContextSnapshot) =>
+    loadYamlFile<Workflow>(
+      `${contextSnapshot.internal.pipelinesDirectory}/.pipeline/workflows/${contextSnapshot.internal.workflow}`
+    );
 
   get workflowRunName() {
     const contextSnapshot = this.contextManager.contextSnapshot;

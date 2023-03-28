@@ -4,15 +4,19 @@
   "scripts": {
     "nx": "nx",
     "lerna": "lerna",
+    "eslint": "eslint",
+    "prettier": "prettier",
     "graph": "nx -- graph",
-    "build:all": "lerna -- run build",
-    "build:runner": "lerna -- run build --scope=actions-runner",
-    "build:runner-container": "bash ./manager.sh buildContainer",
-    "build:actions": "lerna -- run build --scope=@actions/*",
+    "clean": "lerna clean -y",
+    "bootstrap:hoist": "lerna bootstrap --hoist",
+    "build:all": "lerna run build",
+    "build:runner": "lerna run build --scope=actions-runner",
+    "build:runner:container": "bash ./manager.sh buildContainer",
+    "build:actions": "lerna run build --scope=@actions/*",
     "build:action": "f() { npm run --silent lerna -- run build --scope=@actions/$1; }; f",
-    "test:all": "lerna -- run test",
-    "test:runner": "lerna -- run test --scope=actions-runner",
-    "test:runner:e2e": "lerna -- run test --scope=actions-runner-e2e",
+    "test:all": "lerna run test",
+    "test:runner": "lerna run test --scope=actions-runner",
+    "test:runner:e2e": "lerna run test --scope=actions-runner-e2e",
     "watch:all": "lerna watch -- lerna run build --scope=\\$LERNA_PACKAGE_NAME --include-dependents",
     "watch:runner": "lerna watch --scope=\"actions-runner\" --include-dependencies -- lerna run build --scope=\\$LERNA_PACKAGE_NAME",
     "watch:action": "f() { npm run --silent lerna -- watch --scope=\"@actions/$1\" --include-dependencies -- lerna run build --scope=\\$LERNA_PACKAGE_NAME; }; f"
@@ -23,6 +27,12 @@
     "runner/*"
   ],
   "devDependencies": {
-    "lerna": "^6.6.1"
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "eslint": "^8.36.0",
+    "lerna": "^6.6.1",
+    "prettier": "2.8.7",
+    "typescript-eslint": "^0.0.1-alpha.0",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1"
   }
 }

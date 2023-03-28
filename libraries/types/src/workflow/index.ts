@@ -1,2 +1,2 @@
-export * from './workflow'
-export * from './workflowActivationEvent'
+export * from './workflow';
+export * from './workflowActivationEvent';

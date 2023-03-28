@@ -1,23 +1,30 @@
-import { Container, FinalStatus, JobDefinition, JobOutput, RemoteJobDefinition } from '@pipeline/types';
+import {
+  Container,
+  FinalStatus,
+  JobDefinition,
+  JobOutput,
+  RemoteJobDefinition
+} from '@pipeline/types';
 import { ContextManager } from '../context/contextManager';
 import { subtitle } from '@pipeline/utilities';
 import { StepRunner } from '../steps/stepRunner';
 import { renderTemplate } from '../utilities/template';
-import { toContainer } from "../utilities/testcontainers";
+import { toContainer } from '../utilities/testcontainers';
 import { StartedTestContainer } from 'testcontainers';
 import { debug, info } from '@pipeline/core';
 
 export interface SingleJobResult {
-  result: FinalStatus,
-  outputs?: JobOutput
+  result: FinalStatus;
+  outputs?: JobOutput;
 }
 
 export class JobRunner {
   private readonly jobManager: JobManager;
 
-  constructor(readonly job: JobDefinition | RemoteJobDefinition,
-              private readonly contextManager: ContextManager) {
-
+  constructor(
+    readonly job: JobDefinition | RemoteJobDefinition,
+    private readonly contextManager: ContextManager
+  ) {
     this.jobManager = this.mapJobToManger(job);
   }
 
@@ -41,8 +48,10 @@ interface JobManager {
 class LocalJobManager implements JobManager {
   private stepRunner: StepRunner;
 
-  constructor(private readonly jobDefinition: JobDefinition,
-              private readonly contextManager: ContextManager) {
+  constructor(
+    private readonly jobDefinition: JobDefinition,
+    private readonly contextManager: ContextManager
+  ) {
     // FIXME: This pollutes env variables for any subsequent job - including nested ones.
     //  verify if this is a problem
     this.contextManager.appendEnvironmentVariables(this.jobDefinition.env);
@@ -50,31 +59,37 @@ class LocalJobManager implements JobManager {
   }
 
   async run(): Promise<SingleJobResult> {
-    if (this.jobDefinition?.if && !renderTemplate(this.jobDefinition?.if, this.contextManager.contextSnapshot)) {
+    if (
+      this.jobDefinition?.if &&
+      !renderTemplate(this.jobDefinition?.if, this.contextManager.contextSnapshot)
+    ) {
       return {
         result: 'skipped'
       };
     }
     const services = Object.keys(this.jobDefinition.services ?? {})
-        .map(key => ({definition: this.jobDefinition?.services?.[key], name: key}))
-        .filter(a => a.definition !== undefined)
-        .map(definition => ({container: toContainer(definition.definition as Container, definition.name), name: definition.name}));
-    const startedContainers: StartedTestContainer[] = []
+      .map((key) => ({ definition: this.jobDefinition?.services?.[key], name: key }))
+      .filter((a) => a.definition !== undefined)
+      .map((definition) => ({
+        container: toContainer(definition.definition as Container, definition.name),
+        name: definition.name
+      }));
+    const startedContainers: StartedTestContainer[] = [];
     try {
       for (const container of services) {
-        info(`Starting service ${container.name}`)
+        info(`Starting service ${container.name}`);
         const startedContainer: StartedTestContainer = await container.container.start();
-        const logs = await startedContainer.logs()
+        const logs = await startedContainer.logs();
         logs
-            .on("data", line => process.stdout.write(`[${container.name}] ${line}`))
-            .on("err", line => process.stderr.write(`[${container.name}] ${line}`))
-            .on("end", () => process.stdout.write(`[${container.name}] Stream closed`));
-        startedContainers.push(startedContainer)
+          .on('data', (line) => process.stdout.write(`[${container.name}] ${line}`))
+          .on('err', (line) => process.stderr.write(`[${container.name}] ${line}`))
+          .on('end', () => process.stdout.write(`[${container.name}] Stream closed`));
+        startedContainers.push(startedContainer);
       }
       return await this.stepRunner.run();
     } finally {
       for (const container of startedContainers) {
-        await container.stop()
+        await container.stop();
       }
     }
   }

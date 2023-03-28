@@ -1,5 +1,5 @@
 import { shell } from '@pipeline/process';
-import { callbacks, context, info, step } from '@pipeline/core';
+import { callbacks, info, step } from '@pipeline/core';
 
 (async function () {
   info(`Console.log: Hello world!\n${JSON.stringify(step)}`);

@@ -6,7 +6,7 @@ import { error } from '@pipeline/core';
 
 export const main = async () => {
   try {
-    let env = process.env as PipelineEnvironmentVariables;
+    const env = process.env as PipelineEnvironmentVariables;
 
     await configureGit();
     const workflowOrchestrator = await WorkflowOrchestrator.create(env);
@@ -14,10 +14,10 @@ export const main = async () => {
 
     saveObjectAsFile('/runner/result.json', result);
     if (result.result === 'failure') {
-      process.exit(1)
+      process.exit(1);
     }
   } catch (exception: any) {
     error(`Unhandled fatal exception: ${exceptionMapper(exception)}`);
-    throw (exception instanceof Error ? exception : new Error(JSON.stringify(exception)));
+    throw exception instanceof Error ? exception : new Error(JSON.stringify(exception));
   }
 };

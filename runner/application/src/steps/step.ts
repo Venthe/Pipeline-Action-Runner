@@ -5,11 +5,10 @@ import { ActionResult } from './actions';
 
 export const getId = (step: StepDefinition, idx: number) => step.id ?? `step_${idx}`;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Step<T extends StepDefinition> {
   id: string;
-  run: (parentStepRunner: StepRunner,
-        contextManager: ContextManager) => Promise<ActionResult>;
+  run: (parentStepRunner: StepRunner, contextManager: ContextManager) => Promise<ActionResult>;
   name: string;
   if?: string;
 }
-

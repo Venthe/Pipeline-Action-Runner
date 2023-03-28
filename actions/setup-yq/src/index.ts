@@ -1,7 +1,7 @@
 import { callbacks, context, download, RepositoryType, untar } from '@pipeline/core';
 import { shell } from '@pipeline/process';
 
-(async function() {
+(async function () {
   const filename = `${context.internal.binariesDirectory}/yq.tar.gz`;
   await download({
     sourcePath: 'misc/yq_linux_amd64.tar.gz',

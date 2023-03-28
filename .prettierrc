@@ -1,3 +1,22 @@
 {
-  "singleQuote": true
+  "singleQuote": true,
+  "indent": [
+    "warn",
+    2
+  ],
+  "space-in-brackets": [
+    "error",
+    "never",
+    {
+      "singleValue": true,
+      "objectsInArrays": true,
+      "arraysInArrays": true,
+      "arraysInObjects": true,
+      "objectsInObjects": true,
+      "propertyName": true
+    }
+  ],
+  "printWidth": 100,
+  "semi": true,
+  "trailingComma": "none"
 }

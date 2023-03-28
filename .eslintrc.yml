@@ -1,6 +1,9 @@
+ignorePatterns:
+  - "**/dist/**/*"
 env:
-  browser: true
   es2021: true
+  "jest/globals": true
+  node: true
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/recommended
@@ -11,5 +14,14 @@ parserOptions:
   sourceType: module
 plugins:
   - '@typescript-eslint'
-rules: {}
+  - 'jest'
+rules:
+  curly: "error"
+  comma-dangle: [ "warn", "never" ]
+  "jest/no-disabled-tests": "warn"
+  "jest/no-focused-tests": "error"
+  "jest/no-identical-title": "error"
+  "jest/prefer-to-have-length": "warn"
+  "jest/valid-expect": "error"
+  "@typescript-eslint/no-explicit-any": "off"
 root: true
