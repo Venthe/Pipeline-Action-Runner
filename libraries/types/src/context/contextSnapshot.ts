@@ -2,7 +2,7 @@ import {CurrentStatus, FinalStatus, InputOutput} from '../commonTypes';
 import {GerritEventSnapshot} from './gerritEventSnapshot';
 
 /**
- * This context changes for each job in a workflow.ts run. You can access this context from any step in a job. This object
+ * This context changes for each job in a workflow run. You can access this context from any step in a job. This object
  * contains all the properties listed below.
  **/
 export interface JobSnapshot {
@@ -48,7 +48,7 @@ export interface JobSnapshot {
 
 export type JobOutput = {
   /**
-   * The value of a specific output for a job in a reusable workflow.ts.
+   * The value of a specific output for a job in a reusable workflow.
    */
   [outputName: string]: InputOutput;
 };
@@ -60,16 +60,16 @@ export type JobOutputs = {
 export type JobResultString = FinalStatus;
 export type JobResult = {
   /**
-   * The result of a job in the reusable workflow.ts.
+   * The result of a job in the reusable workflow.
    */
   result: JobResultString;
   /**
-   * The set of outputs of a job in a reusable workflow.ts.
+   * The set of outputs of a job in a reusable workflow.
    */
   outputs?: JobOutputs;
 };
 /**
- * This is only available in reusable workflows, and can only be used to set outputs for a reusable workflow.ts. This
+ * This is only available in reusable workflows, and can only be used to set outputs for a reusable workflow. This
  * object contains all the properties listed below.
  */
 export type JobResultSnapshot = {
@@ -111,7 +111,7 @@ export interface StepsResultSnapshot {
 }
 
 /**
- * This context changes for each job in a workflow.ts run. This object contains all the properties listed below.
+ * This context changes for each job in a workflow run. This object contains all the properties listed below.
  */
 export interface RunnerSnapshot {
   /**
@@ -132,7 +132,7 @@ export interface RunnerSnapshot {
    */
   temp: string;
   /**
-   * This context changes for each job in a workflow.ts run. This object contains all the properties listed below.
+   * This context changes for each job in a workflow run. This object contains all the properties listed below.
    * This is set only if debug logging is enabled, and always has the value of 1. It can be useful as an indicator
    * to enable additional debugging or verbose logging in your own job steps.
    */
@@ -145,7 +145,7 @@ export interface RunnerSnapshot {
 }
 
 /**
- * This context is the same for each job in a workflow.ts run. You can access this context from any step in a job. This
+ * This context is the same for each job in a workflow run. You can access this context from any step in a job. This
  * object contains all the properties listed below.
  */
 export interface SecretsSnapshot {
@@ -155,7 +155,7 @@ export interface SecretsSnapshot {
   [secretName: string]: string;
 
   /**
-   * Automatically created token for each workflow.ts run. For more information, see "Automatic token authentication."
+   * Automatically created token for each workflow run. For more information, see "Automatic token authentication."
    * @Deprecated
    */
   SYSTEM_TOKEN: string;
@@ -166,7 +166,7 @@ export interface SecretsSnapshot {
 }
 
 /**
- * This context changes for each job in a workflow.ts run. You can access this context from any job or step in a workflow.ts.
+ * This context changes for each job in a workflow run. You can access this context from any job or step in a workflow.
  * This object contains all the properties listed below.
  */
 export interface StrategySnapshot {
@@ -194,8 +194,8 @@ export interface StrategySnapshot {
 }
 
 /**
- * This context is only available for jobs in a matrix, and changes for each job in a workflow.ts run. You can access this
- * context from any job or step in a workflow.ts. This object contains the properties listed below.
+ * This context is only available for jobs in a matrix, and changes for each job in a workflow run. You can access this
+ * context from any job or step in a workflow. This object contains the properties listed below.
  */
 export interface MatrixSnapshot {
   /**
@@ -205,8 +205,8 @@ export interface MatrixSnapshot {
 }
 
 /**
- * This context is only populated for workflow.ts runs that have dependent jobs, and changes for each job in a workflow.ts run.
- * You can access this context from any job or step in a workflow.ts. This object contains all the properties listed below.
+ * This context is only populated for workflow runs that have dependent jobs, and changes for each job in a workflow run.
+ * You can access this context from any job or step in a workflow. This object contains all the properties listed below.
  */
 export interface NeedsSnapshot {
   /**
@@ -232,12 +232,12 @@ export interface NeedsSnapshot {
 }
 
 /**
- * This context is only available in a reusable workflow.ts or in a workflow.ts triggered by the workflow_dispatch event.
- * You can access this context from any job or step in a workflow.ts. This object contains the properties listed below.
+ * This context is only available in a reusable workflow or in a workflow triggered by the workflow_dispatch event.
+ * You can access this context from any job or step in a workflow. This object contains the properties listed below.
  */
 export interface InputsSnapshot {
   /**
-   * Each input value passed from an external workflow.ts.
+   * Each input value passed from an external workflow.
    */
   [name: string]: InputOutput;
 }
@@ -253,9 +253,9 @@ type EnvironmentVariablesSnapshot = {
 export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
   /**
    * The full event webhook payload. You can access individual properties of the event using this context. This
-   * object is identical to the webhook payload of the event that triggered the workflow.ts run, and is different for
+   * object is identical to the webhook payload of the event that triggered the workflow run, and is different for
    * each event. The webhooks for each <SYSTEM> Actions event is linked in "Events that trigger workflows." For example,
-   * for a workflow.ts run triggered by the push event, this object contains the contents of the push webhook payload.
+   * for a workflow run triggered by the push event, this object contains the contents of the push webhook payload.
    **/
   event: T;
 
@@ -312,18 +312,18 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
    **/
   actionStatus: string;
   /**
-   * The username of the user that triggered the initial workflow.ts run. If the workflow.ts run is a re-run, this value
-   * may differ from <system>.triggering_actor. Any workflow.ts re-runs will use the privileges of <system>.actor, even if
+   * The username of the user that triggered the initial workflow run. If the workflow run is a re-run, this value
+   * may differ from <system>.triggering_actor. Any workflow re-runs will use the privileges of <system>.actor, even if
    * the actor initiating the re-run (<system>.triggering_actor) has different privileges.
    **/
   actor: string;
   /**
-   * The base_ref or target branch of the pull request in a workflow.ts run. This property is only available when the
-   * event that triggers a workflow.ts run is either pull_request or pull_request_target.
+   * The base_ref or target branch of the pull request in a workflow run. This property is only available when the
+   * event that triggers a workflow run is either pull_request or pull_request_target.
    **/
   baseRevisions: string;
   /**
-   * Path on the runner to the file that sets environment variables from workflow.ts commands. This file is unique to
+   * Path on the runner to the file that sets environment variables from workflow commands. This file is unique to
    * the current step and is a different file for each step in a job. For more information, see "Workflow commands
    * for <SYSTEM> Actions."
    *
@@ -331,7 +331,7 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
    **/
   env: string;
   /**
-   * The name of the event that triggered the workflow.ts run.
+   * The name of the event that triggered the workflow run.
    **/
   eventName: string;
   /**
@@ -339,75 +339,75 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
    **/
   eventPath: string;
   /**
-   * The head_ref or source branch of the pull request in a workflow.ts run. This property is only available when
-   * the event that triggers a workflow.ts run is either pull_request or pull_request_target.
+   * The head_ref or source branch of the pull request in a workflow run. This property is only available when
+   * the event that triggers a workflow run is either pull_request or pull_request_target.
    **/
   headRef: string;
   /**
    * The job_id of the current job.
-   **/
-  job: string;
-  /**
+   * 
    * Note: This context property is set by the Actions runner, and is only available within the execution steps of a
    * job. Otherwise, the value of this property will be null.
    **/
-  ref: string;
+  job: string;
   /**
-   * The fully-formed ref of the branch or tag that triggered the workflow.ts run. For workflows triggered by push, this
+   * The fully-formed ref of the branch or tag that triggered the workflow run. For workflows triggered by push, this
    * is the branch or tag ref that was pushed. For workflows triggered by pull_request, this is the pull request merge
    * branch. For workflows triggered by release, this is the release tag created. For other triggers, this is the
-   * branch or tag ref that triggered the workflow.ts run. This is only set if a branch or tag is available for the
+   * branch or tag ref that triggered the workflow run. This is only set if a branch or tag is available for the
    * event type. The ref given is fully-formed, meaning that for branches the format is refs/heads/<branch_name>,
    * for pull requests it is refs/pull/<pr_number>/merge, and for tags it is refs/tags/<tag_name>. For example,
    * refs/heads/feature-branch-1.
    **/
+  ref: string;
+  /**
+   * The short ref name of the branch or tag that triggered the workflow run. This value matches the branch or tag
+   * name shown on <SYSTEM>. For example, feature-branch-1.
+   **/
   refName: string;
   /**
-   * The short ref name of the branch or tag that triggered the workflow.ts run. This value matches the branch or tag
-   * name shown on <SYSTEM>. For example, feature-branch-1.
+   * true if branch protections are configured for the ref that triggered the workflow run.
    **/
   refProtected: boolean;
   /**
-   * true if branch protections are configured for the ref that triggered the workflow.ts run.
+   * The type of ref that triggered the workflow run. Valid values are branch or tag.
    **/
   refType: string;
   /**
-   * The type of ref that triggered the workflow.ts run. Valid values are branch or tag.
-   **/
-  path: string;
-  /**
-   * Path on the runner to the file that sets system PATH variables from workflow.ts commands. This file is unique to
+   * Path on the runner to the file that sets system PATH variables from workflow commands. This file is unique to
    * the current step and is a different file for each step in a job. For more information, see "Workflow commands
    * for <SYSTEM> Actions."
    **/
+  path: string;
+
+  /**
+   * The owner and repository name. For example, repository/Hello-World.
+   **/
   repository: string;
   /**
-   * The owner and repository name. For example, Codertocat/Hello-World.
+   * The repository owner's name. For example, repository.
    **/
   repositoryOwner: string;
   /**
-   * The repository owner's name. For example, Codertocat.
+   * The Git URL to the repository. For example, git://<system>.com/repository/hello-world.git.
    **/
   repositoryUrl: string;
   /**
-   * The Git URL to the repository. For example, git://<system>.com/codertocat/hello-world.git.
+   * The number of days that workflow run logs and artifacts are kept.
    **/
   retentionDays: string;
   /**
-   * The number of days that workflow.ts run logs and artifacts are kept.
-   **/
-  /**
-   * A unique number for each run of a particular workflow.ts in a repository. This number begins at 1 for the workflow.ts's
-   * first run, and increments with each new run. This number does not change if you re-run the workflow.ts run.
+   * A unique number for each run of a particular workflow in a repository. This number begins at 1 for the workflow's
+   * first run, and increments with each new run. This number does not change if you re-run the workflow run.
    **/
   runId: string;
   /**
-   * A unique number for each attempt of a particular workflow.ts run in a repository. This number begins at 1 for the
-   * workflow.ts run's first attempt, and increments with each re-run.
+   * A unique number for each attempt of a particular workflow run in a repository. This number begins at 1 for the
+   * workflow run's first attempt, and increments with each re-run.
    **/
   runNumber: string;
   /**
-   * The source of a secret used in a workflow.ts. Possible values are None, Actions, Dependabot, or Codespaces.
+   * The source of a secret used in a workflow. Possible values are None, Actions, Dependabot, or Codespaces.
    **/
   runAttempt: string;
   /**
@@ -415,20 +415,20 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
    **/
   secretSource: string;
   /**
-   * The commit SHA that triggered the workflow.ts. The value of this commit SHA depends on the event that triggered the
-   * workflow.ts. For more information, see "Events that trigger workflows."
+   * The commit SHA that triggered the workflow. The value of this commit SHA depends on the event that triggered the
+   * workflow. For more information, see "Events that trigger workflows."
    * For example, ffac537e6cbbf934b08745a378932722df287a53.
    **/
   serverUrl: string;
   /**
-   * The username of the user that initiated the workflow.ts run. If the workflow.ts run is a re-run, this value may differ
-   * from <system>.actor. Any workflow.ts re-runs will use the privileges of <system>.actor, even if the actor initiating the
+   * The username of the user that initiated the workflow run. If the workflow run is a re-run, this value may differ
+   * from <system>.actor. Any workflow re-runs will use the privileges of <system>.actor, even if the actor initiating the
    * re-run (<system>.triggering_actor) has different privileges.
    **/
   triggeringActor: string;
   /**
-   * The name of the workflow.ts. If the workflow.ts file doesn't specify a name, the value of this property is the full
-   * path of the workflow.ts file in the repository.
+   * The name of the workflow. If the workflow file doesn't specify a name, the value of this property is the full
+   * path of the workflow file in the repository.
    **/
   workflow: string;
   /**
@@ -451,7 +451,7 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
 };
 
 /**
- * The top-level context available during any job or step in a workflow.ts. This object contains all the properties
+ * The top-level context available during any job or step in a workflow. This object contains all the properties
  * listed below.
  **/
 export interface ContextSnapshot<T extends object = GerritEventSnapshot> {
