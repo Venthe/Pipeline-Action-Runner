@@ -6,7 +6,9 @@ RUN apt-get update \
     && apt-get install --assume-yes curl git nodejs unzip vim iptables \
     && apt-get clean
 
-RUN curl --fail --silent --show-error --location "${NODE_VERSION:-https://deb.nodesource.com/setup_19.x}" | bash -
+RUN curl --fail --silent --show-error --location https://deb.nodesource.com/setup_21.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean
 
 RUN apt-get install \
            ca-certificates \
