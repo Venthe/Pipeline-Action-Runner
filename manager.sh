@@ -25,11 +25,11 @@ _NEXUS_URL="https://nexus.home.arpa/repository/raw-hosted"
 _DOCKER_TAG="docker.home.arpa"
 
 # Docker image details
-RUNNER_BASE_IMAGE="docker.io/library/ubuntu:22.10"
+RUNNER_BASE_IMAGE="docker.io/library/ubuntu:23.10"
 NODE_VERSION=19
 
 # Other
-RUNNER_IMAGE="${_DOCKER_TAG}/venthe/ubuntu-runner:22.10"
+RUNNER_IMAGE="${_DOCKER_TAG}/venthe/ubuntu-runner:23.10"
 
 function cleanPipeline() {
   (cd runner/application && rm -rf ./node_modules/@pipeline)

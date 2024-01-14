@@ -1,4 +1,4 @@
-FROM "${RUNNER_BASE_IMAGE:-docker.io/library/ubuntu:22.10}"
+FROM "${RUNNER_BASE_IMAGE:-docker.io/library/ubuntu:23.10}"
 
 RUN apt-get update \
     && apt-get install --assume-yes software-properties-common \
@@ -17,7 +17,7 @@ RUN apt-get install \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo \
          "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-         jammy stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+         mantic stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
     && apt-get update \
     && apt-get install --assume-yes docker-ce docker-ce-cli containerd.io docker-compose-plugin \
     && apt-get clean
