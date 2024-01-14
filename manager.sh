@@ -68,7 +68,7 @@ function buildManager() {
 }
 
 function buildContainer() {
-  DOCKER_BUILDKIT=0 docker build \
+  docker build \
     --progress=plain \
     --tag="${RUNNER_IMAGE}" \
     --file=Dockerfile \
