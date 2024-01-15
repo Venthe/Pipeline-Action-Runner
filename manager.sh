@@ -31,6 +31,12 @@ NODE_VERSION=19
 # Other
 RUNNER_IMAGE="${_DOCKER_TAG}/venthe/ubuntu-runner:23.10"
 
+# VCS upload
+GERRIT_URL="localhost:1555"
+GERRIT_PROTOCOL="http"
+GERRIT_USERNAME="admin"
+GERRIT_PASSWORD="secret"
+
 function clean_projects() {
   npm run clean --workspaces
 }
@@ -90,107 +96,155 @@ function build_all() {
   build_container
 }
 
-# REBUILD_MANAGER=1 ./manager.sh test tests/remote-actions
-function execute() {
-  local repositoryPath="${1}"
-  local envPath="${ENVIRONMENT_PATH:-${PWD}/env/}"
-  local eventFile="${EVENT_FILE:-${PWD}/event.yaml}"
-  local secretsPath="${SECRETS_PATH:-${PWD}/secrets/}"
+function create_gerrit_project() {
+  local PROJECT_NAME="${1}"
+  local NORMALIZED_PROJECT_NAME=`printf ${PROJECT_NAME} | sed 's/\//%2F/'`
 
-  function project() {
-    if [[ "${ENVIRONMENT}" != "localhost" ]]; then
-      (cd ../../../ && bash ./load-projects.sh "${@}" Test/ActionRunnerTestService)
-    else
-      function loadProject() {
-        docker run --rm -it \
-            --volume="${HOME}/.gitconfig:/root/.gitconfig:ro" \
-             -p "8080:80" \
-            --name="git-server" \
-            --detach \
-            docker.home.arpa/venthe/git-server:latest
-        sleep 2
+  echo "Creating gerrit project: ${PROJECT_NAME}"
+  curl "${GERRIT_PROTOCOL}://${GERRIT_URL}/a/projects/${NORMALIZED_PROJECT_NAME}" \
+    -u "${GERRIT_USERNAME}:${GERRIT_PASSWORD}" \
+    -X PUT \
+    -H "Content-Type: application/json; charset=UTF-8" \
+    -d '{}'
+}
 
-        local temp_directory="$(mktemp -d)"
-        trap 'rm -rf -- "${temp_directory}"' EXIT INT
-        rsync --recursive --exclude="node_modules" --exclude=".git" "${repositoryPath}" "${temp_directory}"
-        (cd ${temp_directory} \
-          && git init \
-          && git add --all 2>/dev/null \
-          && git commit -m "Initial commit" \
-          && git push http://localhost:8080/repository.git main)
-      }
+function delete_gerrit_project() {
+  local PROJECT_NAME="${1}"
+  local NORMALIZED_PROJECT_NAME=`printf ${PROJECT_NAME} | sed 's/\//%2F/'`
 
-      function deleteProject() {
-        docker stop git-server
-      }
+  echo "Deleting gerrit project: ${PROJECT_NAME}"
+  curl "${GERRIT_PROTOCOL}://${GERRIT_URL}/a/projects/${NORMALIZED_PROJECT_NAME}" \
+    -u "${GERRIT_USERNAME}:${GERRIT_PASSWORD}" \
+    -X DELETE || true
+}
 
-      ${@}
-    fi
-  }
+function upload_project_to_gerrit() {
+  local PROJECT_DIRECTORY="${1}"
+  local PROJECT_NAME="${2}"
+  local ORIGINAL_PWD="${PWD}"
+  local WORK_DIR=$(mktemp -d)
+  local NORMALIZED_PROJECT_NAME=`printf ${PROJECT_NAME} | sed 's/\//%2F/'`
 
-  project deleteProject || true
-  project loadProject "${repositoryPath}"
+  cd "${PROJECT_DIRECTORY}"
+  cp -r ./ "${WORK_DIR}"
+  cd "${WORK_DIR}"
+
+  git init
+  git add --all
+  git commit -m "Initial commit"
+  git remote add origin "${GERRIT_PROTOCOL}://${GERRIT_USERNAME}:${GERRIT_PASSWORD}@${GERRIT_URL}/${NORMALIZED_PROJECT_NAME}"
+  git push --force
+
+  cd "${ORIGINAL_PWD}"
+  rm -rf "${WORK_DIR}"
+}
+
+function upload_project() {
+  local PROJECT_DIRECTORY="${1}"
+  local PROJECT_NAME="${2}"
+
+  echo "Uploading project ${PROJECT_NAME} as ${NORMALIZED_PROJECT_NAME} from ${PROJECT_DIRECTORY}"
+
+  delete_gerrit_project "${PROJECT_NAME}"
+  create_gerrit_project "${PROJECT_NAME}"
+  upload_project_to_gerrit "${PROJECT_DIRECTORY}" "${PROJECT_NAME}"
+}
+
+function test() {
+  echo ""
+  echo "TESTING ${1}"
+  echo ""
+
+  local TEST_PROJECT_NAME="Test/Example-Project-Name"
+  local TEST_ROOT="runner/integration-test"
+  local TEST_PATH_ENV="${TEST_ROOT}/common/env"
+  local TEST_PATH_EVENT="${TEST_ROOT}/common/localhost/event.yaml"
+  local TEST_PATH_SECRETS="${TEST_ROOT}/common/secrets"
+  local TEST_PATH_TEST="${TEST_ROOT}/resources/${1}"
+  local TEST_WORKFLOW_NAME="workflow.yaml"
+  local TEST_JOB_ID="TestedJob"
+
+  # ENV
+  local PIPELINE_WORKFLOW_EXECUTION_ID="Test-Execution-Id"
+  local PIPELINE_JOB_NAME="Test-Job-Name"
+
+  local SECRET_DOCKER_USERNAME=admin
+  local SECRET_DOCKER_PASSWORD=secret
+  local SECRET_NEXUS_USERNAME=admin
+  local SECRET_NEXUS_PASSWORD=secret
+
+  local __DEBUG_JOB_DATA=`TEST_JOB_ID=${TEST_JOB_ID} \
+  TEST_WORKFLOW_NAME=${TEST_WORKFLOW_NAME} \
+  TEST_PROJECT_NAME=${TEST_PROJECT_NAME} \
+  yq ea '
+      . as $item ireduce ({}; . * $item ) |
+      .projectName = env(TEST_PROJECT_NAME) |
+      .ref = "refs/heads/main" |
+      .workflow = ._workflow.name // env(TEST_WORKFLOW_NAME) |
+      .event = ._event |
+      .env = ._workflow.env // {} |
+      .env *= ._workflow.jobs[env(TEST_JOB_ID)].env // {} |
+      .outputs = {} |
+      .steps = ._workflow.jobs[env(TEST_JOB_ID)].steps |
+      .timeoutMinutes = 6 |
+      .continueOnError = true |
+      del ._workflow |
+      del ._event
+    ' \
+    <(yq '{"_event": .}' "${TEST_PATH_EVENT}") \
+    <(yq '{"_workflow": .}' "${TEST_PATH_TEST}/.pipeline/workflows/${TEST_WORKFLOW_NAME}") | \
+    base64 -w0`
+
+  delete_gerrit_project "${TEST_PROJECT_NAME}"
+  create_gerrit_project "${TEST_PROJECT_NAME}"
+  upload_project_to_gerrit "${TEST_PATH_TEST}" "${TEST_PROJECT_NAME}"
 
   docker run \
     --rm --interactive --tty \
-    --volume "${HOME}/.kube/config:/root/.kube_test/config:ro" \
-    --volume "${HOME}/.ssh/:/root/.ssh_test:ro" \
     --volume "${PWD}/runner/application/dist/index.js:/runner/index.js" \
     --volume "${PWD}/runner/application/dist/sourcemap-register.js:/runner/sourcemap-register.js" \
     --volume "${PWD}/runner/application/dist/index.js.map:/runner/index.js.map" \
-    --volume "${envPath}:/runner/metadata/env:ro" \
-    --volume "${eventFile}:/runner/metadata/event.yaml:ro" \
-    --volume "${secretsPath}:/runner/metadata/secrets:ro" \
-    --volume "${PWD}/runner/application/test/test.sh:/test.sh" \
     --volume "/etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro" \
-    --volume "/usr/local/share/ca-certificates/k8s/ca.crt:/certs/ca.crt:ro" \
+    --volume "${HOME}/.kube/config:/root/.kube/config:ro" \
+    --volume "${PWD}/runner/application/test/test.sh:/test.sh" \
+    \
+    --env PIPELINE_VERSION_CONTROL_TYPE="ssh" \
+    --env PIPELINE_VERSION_CONTROL_SSH_PORT="1556" \
+    --env PIPELINE_VERSION_CONTROL_SSH_HOST="host.docker.internal" \
+    --env PIPELINE_VERSION_CONTROL_SSH_USERNAME="admin" \
+    --env __DEBUG_JOB_DATA="${__DEBUG_JOB_DATA}" \
+    --env __DEBUG_SSH_PRIVATE_KEY="`cat ~/.ssh/id_rsa | base64 -w0`" \
+    --env __DEBUG_DONT_UPDATE_STATUS="true" \
+    --env PIPELINE_FILE_STORAGE_TYPE="nexus" \
+    --env PIPELINE_FILE_STORAGE_URL="${_NEXUS_URL}" \
+    \
+    --env SECRET_DOCKER_USERNAME="${SECRET_DOCKER_USERNAME}" \
+    --env SECRET_DOCKER_PASSWORD="${SECRET_DOCKER_PASSWORD}" \
+    --env SECRET_NEXUS_USERNAME="${SECRET_NEXUS_USERNAME}" \
+    --env SECRET_NEXUS_PASSWORD="${SECRET_NEXUS_PASSWORD}" \
+    --env PIPELINE_DEBUG="1" \
     \
     --privileged \
     \
-    --env PIPELINE_JOB_NAME="${PIPELINE_JOB_NAME:-TestedJob}" \
-    --env PIPELINE_BUILD_ID="1" \
-    --env PIPELINE_DEBUG="${PIPELINE_DEBUG:-1}" \
-    --env PIPELINE_WORKFLOW="${PIPELINE_WORKFLOW:-workflow.yaml}" \
-    --env PIPELINE_NEXUS_URL="${_NEXUS_URL}" \
-    --env PIPELINE_GERRIT_URL="${_GERRIT_URL}" \
-    --env PIPELINE_DOCKER_URL="${_DOCKER_URL}" \
-    \
-    --env GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
     "${RUNNER_IMAGE}" \
-    "${2:-/test.sh}"
-
-  project deleteProject
-}
-
-function publishContainer() {
-  docker login docker.home.arpa
-  docker push "${RUNNER_IMAGE}"
-}
-
-prepareNPM() {
-  npm set strict-ssl=false
-  npm adduser --auth-type=legacy --registry https://nexus.home.arpa/repository/npm-hosted/
+    /test.sh
 }
 
 function test_all() {
-  npm run test ${@} --prefix=test
+  test "actions/artifact"
+  test "actions/cache/cache-key/hash-key"
+  test "actions/cache/restore-and-save"
+  # test "actions/cache/single-action"
+  test "actions/cache/skip-on-cache-hit"
+  test "actions/checkout"
+  test "actions/python/pip/requirements"
+  test "actions/python/pip/with"
+  test "actions/setup-docker"
+  test "actions/setup-kubectl"
+  test "actions/setup-yq"
+  test "call-shell"
+  test "composite-and-custom"
 }
-
-if [[ "${REBUILD_LIBRARIES}" -eq "1" ]]; then
-  buildLibraries
-fi
-
-if [[ "${REBUILD_MANAGER}" -eq "1" ]]; then
-  build_runner
-fi
-
-if [[ "${REBUILD_CONTAINER}" -eq "1" ]]; then
-  build_container
-fi
-
-if [[ "${REBUILD_ACTIONS}" -eq "1" ]]; then
-  build_actions
-fi
 
 if [[ ${#} -ne 0 ]]; then
   if declare -f "$1" >/dev/null; then

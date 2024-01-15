@@ -5,10 +5,10 @@ jobs:
     name: "Action: upload-artifact"
     runs-on: docker.home.arpa/venthe/ubuntu-runner:22.10
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@main
       - name: Restore cached Primes
         id: cache-primes-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache@main:restore
         with:
           path: |
             path/to/dependencies
@@ -16,7 +16,7 @@ jobs:
           key: ${{ runner.os }}-primes
       - name: Save Primes
         id: cache-primes-save
-        uses: actions/cache/save@v3
+        uses: actions/cache@main:save
         with:
           path: |
             path/to/dependencies
