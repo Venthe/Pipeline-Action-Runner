@@ -14,7 +14,7 @@ import { rerenderTemplate } from '../utilities/template';
 import { exceptionMapper } from '../utilities';
 import { ActionResult } from './actions';
 import { shouldRunExpression } from './script';
-import { debug, error, info } from '@pipeline/core';
+import { debug, error, info } from '../utilities/log';
 
 type OutputMappings = {
   // ${{ steps.step1.outputs.test }}

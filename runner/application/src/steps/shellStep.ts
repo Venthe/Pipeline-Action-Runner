@@ -7,7 +7,7 @@ import { renderTemplate } from '../utilities/template';
 import { exceptionMapper, loadEnvironmentFile } from '../utilities';
 import { throwThis } from '@pipeline/utilities';
 import { ActionResult } from './actions';
-import { debug, error } from '@pipeline/core';
+import { debug, error } from '../utilities/log';
 
 export class ShellStep implements Step<ShellStepDefinition> {
   constructor(private readonly step: ShellStepDefinition, private readonly index: number) {}

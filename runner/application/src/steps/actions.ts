@@ -8,12 +8,13 @@ import {
   StepOutputs
 } from '@pipeline/types';
 import { ContextManager } from '../context/contextManager';
-import { AddEnvMessage, AddToPathMessage, checkout, debug, SetOutputMessage } from '@pipeline/core';
+import { AddEnvMessage, AddToPathMessage, checkout, SetOutputMessage } from '@pipeline/core';
 import { loadYamlFile } from '../utilities';
 import fs from 'fs';
 import { throwThis } from '@pipeline/utilities';
 import * as childProcess from 'child_process';
 import { StepRunner, StepRunnerResult } from './stepRunner';
+import { debug } from '../utilities/log';
 
 export interface ActionResult {
   outcome: FinalStatus;

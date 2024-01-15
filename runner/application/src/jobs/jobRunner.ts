@@ -5,13 +5,13 @@ import {
   JobOutput,
   RemoteJobDefinition
 } from '@pipeline/types';
-import { ContextManager } from '../context/contextManager';
-import { subtitle } from '@pipeline/utilities';
-import { StepRunner } from '../steps/stepRunner';
 import { renderTemplate } from '../utilities/template';
 import { toContainer } from '../utilities/testcontainers';
 import { StartedTestContainer } from 'testcontainers';
-import { debug, info } from '@pipeline/core';
+import { ContextManager } from '../context/contextManager';
+import { subtitle } from '@pipeline/utilities';
+import { StepRunner } from '../steps/stepRunner';
+import { debug, info } from '../utilities/log';
 
 export interface SingleJobResult {
   result: FinalStatus;

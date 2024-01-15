@@ -2,6 +2,7 @@ import fs from 'fs';
 import { loadJsonFile } from '../utilities';
 import { SecretsSnapshot } from '@pipeline/types';
 import * as envfile from 'envfile';
+import { debug } from '../utilities/log';
 
 export class SecretsManager {
   private readonly secretFilenameExtension = '.json';

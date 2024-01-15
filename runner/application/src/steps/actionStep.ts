@@ -5,6 +5,8 @@ import { getId as gid, Step } from './step';
 import { throwThis } from '@pipeline/utilities';
 import { Action, ActionResult } from './actions';
 import { rerenderTemplate } from '../utilities/template';
+import { error } from '../utilities/log';
+import { exceptionMapper } from '../utilities';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export class ActionStep<T extends object = {}> implements Step<ActionStepDefinition<T>> {
@@ -29,6 +31,7 @@ export class ActionStep<T extends object = {}> implements Step<ActionStepDefinit
       const action = await Action.load(stepDefinition, contextManager, parentStepRunner);
       return action.run();
     } catch (e) {
+      error(exceptionMapper(e));
       return { outcome: 'failure' };
     }
   }
