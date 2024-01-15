@@ -22,6 +22,7 @@ THIS_TAG="${CURRENT_BRANCH}-${CURRENT_DATETIME}-${CURRENT_VERSION_TAG}"
 _GERRIT_URL="ssh://admin@ssh.gerrit.home.arpa:29418"
 _DOCKER_URL="https://docker.home.arpa"
 _NEXUS_URL="https://nexus.home.arpa/repository/raw-hosted"
+_NEXUS_URL_NPM="https://nexus.home.arpa/repository/npm-hosted/"
 _DOCKER_TAG="docker.home.arpa"
 
 # Docker image details
@@ -36,6 +37,11 @@ GERRIT_URL="localhost:1555"
 GERRIT_PROTOCOL="http"
 GERRIT_USERNAME="admin"
 GERRIT_PASSWORD="secret"
+
+function prepare_npm() {
+  npm set strict-ssl=false
+  npm adduser --auth-type=legacy --registry "${_NEXUS_URL_NPM}"
+}
 
 function clean_projects() {
   npm run clean --workspaces
