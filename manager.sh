@@ -244,6 +244,7 @@ function test_all() {
   test "actions/setup-yq"
   test "call-shell"
   test "composite-and-custom"
+  test "docker-action"
 }
 
 if [[ ${#} -ne 0 ]]; then

@@ -1,0 +1,5 @@
+name: 'Action B: node script'
+description: 'Checkout a Git repository at a particular version'
+runs:
+  using: 'docker'
+  image: 'docker.io/library/hello-world'

@@ -121,6 +121,7 @@ export class Action {
   ): Promise<LocalActionExpression> {
     switch (actionDefinition.runs.using?.toLowerCase()) {
       case 'docker':
+        // TODO: Add docker action manager
         throw new Error('Action type unhandled');
       case 'composite':
         return this.manageCompositeAction(actionDefinition as CompositeActionDefinition);
