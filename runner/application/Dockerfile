@@ -33,7 +33,8 @@ ADD "./runner.sh" "/runner/runner.sh"
 
 WORKDIR "/workdir"
 
-RUN mkdir -p \
+RUN chmod +x /runner/runner.sh && \
+    mkdir -p \
     "/runner" \
     "/runner/actions" \
     "/runner/bin" \
