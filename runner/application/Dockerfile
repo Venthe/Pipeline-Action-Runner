@@ -28,8 +28,8 @@ RUN apt-get update \
     && apt-get install --assume-yes build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev \
     && apt-get clean
 
-ADD "./runner/application/dist" "/runner"
-ADD "./runner/application/runner.sh" "/runner/runner.sh"
+ADD "./dist" "/runner"
+ADD "./runner.sh" "/runner/runner.sh"
 
 WORKDIR "/workdir"
 

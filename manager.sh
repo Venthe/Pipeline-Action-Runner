@@ -31,48 +31,63 @@ NODE_VERSION=19
 # Other
 RUNNER_IMAGE="${_DOCKER_TAG}/venthe/ubuntu-runner:23.10"
 
-function cleanPipeline() {
-  (cd runner/application && rm -rf ./node_modules/@pipeline)
+function clean_projects() {
+  npm run clean --workspaces
 }
 
-function buildActions() {
-  (cd ./actions && bash ./manager.sh)
+function clean_node_modules() {
+  find -type d | grep -E node_modules$ | xargs -I{} rm -rf {} || true
 }
 
-function buildAction() {
-  (cd ./actions && bash ./manager.sh buildSingle "${1}")
+function clean_package_locks() {
+  find -type d | grep -E node_modules$ | xargs -I{} rm -rf {} || true
 }
 
-function buildLibraries() {
-  (cd ./libraries && bash ./manager.sh)
-  cleanPipeline
-  (cd runner/application && npm install)
+function clean_stray_js() {
+  find -type f | grep -E '\.js$' | grep -vE 'node_modules' | grep src | xargs -I{} rm {} || true
 }
 
-function buildLibrary() {
-  (cd ./libraries && bash ./manager.sh buildSingle "${1}")
-  cleanPipeline
-  (cd runner/application && npm install)
+function clean_all() {
+  clean_node_modules
+  clean_stray_js
+
+  npm install
+
+  clean_projects
 }
 
-function prepare() {
-  if [[ "${REBUILD_LIBRARIES}" -eq "1" ]]; then
-    buildLibraries
-  fi
-  (cd runner/application && npm install)
+function build_action() {
+  npm run build --workspace "actions/${1}"
 }
 
-function buildManager() {
-  (cd runner/application && npm install)
-  (cd runner/application && npm run build)
+function build_actions() {
+  find ./actions -mindepth 1 -maxdepth 1 -type d | sed 's/\.\/actions\///' | xargs -I{} npm run build --workspace "actions/{}"  
 }
 
-function buildContainer() {
-  docker build \
-    --progress=plain \
-    --tag="${RUNNER_IMAGE}" \
-    --file=Dockerfile \
-    ./
+function build_library() {
+  npm run build --workspace "libraries/${1}"
+}
+
+function build_runner() {
+  npm run build --workspace runner/application
+}
+
+function build_container() {
+  RUNNER_BASE_IMAGE=${RUNNER_BASE_IMAGE} RUNNER_IMAGE=${RUNNER_IMAGE} npm run build:container --workspace runner/application
+}
+
+function build_libraries() {
+  build_library types
+  build_library utilities
+  build_library process
+  build_library core
+}
+
+function build_all() {
+  build_libraries
+  build_actions
+  build_runner
+  build_container
 }
 
 # REBUILD_MANAGER=1 ./manager.sh test tests/remote-actions
@@ -147,18 +162,9 @@ function execute() {
   project deleteProject
 }
 
-function build() {
-  buildManager && buildContainer
-}
-
 function publishContainer() {
   docker login docker.home.arpa
   docker push "${RUNNER_IMAGE}"
-}
-
-function full() {
-  build
-  publishContainer
 }
 
 prepareNPM() {
@@ -175,15 +181,15 @@ if [[ "${REBUILD_LIBRARIES}" -eq "1" ]]; then
 fi
 
 if [[ "${REBUILD_MANAGER}" -eq "1" ]]; then
-  buildManager
+  build_runner
 fi
 
 if [[ "${REBUILD_CONTAINER}" -eq "1" ]]; then
-  buildContainer
+  build_container
 fi
 
 if [[ "${REBUILD_ACTIONS}" -eq "1" ]]; then
-  buildActions
+  build_actions
 fi
 
 if [[ ${#} -ne 0 ]]; then

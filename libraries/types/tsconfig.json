@@ -1,11 +1,16 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declaration": true,
+    "emitDeclarationOnly": true
   },
   "exclude": [
     "./jest.config.ts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "node_modules"
   ],
   "include": [
     "src/**/*.ts"

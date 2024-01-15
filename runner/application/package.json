@@ -9,36 +9,26 @@
     "jest": "jest",
     "test": "jest --config=./jest.config.ts",
     "clean": "(mkdir -p dist || true) && rm -rf dist/* && ncc cache clean",
-    "build": "npm run --silent clean && ncc build src/index.ts --out dist --source-map",
-    "build:watch": "npm run --silent build -- --watch"
+    "build": "ncc build src/index.ts --out dist --source-map",
+    "build:watch": "npm run --silent build -- --watch",
+    "build:container": "docker build --progress=plain --tag=\"${RUNNER_IMAGE}\" --file=Dockerfile ./"
   },
   "devDependencies": {
     "@pipeline/types": "*",
-    "@types/cli-color": "^2.0.2",
-    "@types/jest": "^29.4.0",
-    "@types/js-yaml": "^4.0.5",
-    "@types/node": "^18.13.0",
-    "@types/nunjucks": "^3.2.1",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@vercel/ncc": "^0.36.1",
-    "eslint": "^8.36.0",
-    "eslint-plugin-jest": "^27.2.1",
-    "jest": "^29.3.1",
-    "prettier": "^2.8.7",
-    "testcontainers": "^9.1.1",
-    "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1",
-    "typescript-eslint": "^0.0.1-alpha.0"
+    "@types/cli-color": "^2.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/nunjucks": "^3.2.6"
   },
   "dependencies": {
     "@pipeline/core": "*",
     "@pipeline/process": "*",
     "@pipeline/utilities": "*",
     "cli-color": "^2.0.3",
-    "envfile": "^6.18.0",
-    "glob": "^9.3.2",
+    "envfile": "^7.1.0",
+    "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
-    "nunjucks": "^3.2.3",
-    "process": "^0.11.10"
+    "nunjucks": "^3.2.4",
+    "process": "^0.11.10",
+    "testcontainers": "^10.5.0"
   }
 }

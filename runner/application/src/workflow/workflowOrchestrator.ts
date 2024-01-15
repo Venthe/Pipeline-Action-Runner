@@ -8,7 +8,7 @@ import {
 } from '../configuration/environment';
 import { shellMany } from '@pipeline/process';
 import { title } from '@pipeline/utilities';
-import { renderTemplate } from 'utilities/template';
+import { renderTemplate } from '../utilities/template';
 import { checkoutCommands, info } from '@pipeline/core';
 
 export class WorkflowOrchestrator {

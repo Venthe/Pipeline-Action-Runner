@@ -1,8 +1,8 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "dist/out-tsc",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "declaration": false,
     "types": [
       "node"
@@ -11,7 +11,8 @@
   "exclude": [
     "./jest.config.ts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "node_modules"
   ],
   "include": [
     "src/**/*.ts"

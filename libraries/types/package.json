@@ -6,17 +6,9 @@
   "scripts": {
     "tsc": "tsc",
     "clean": "(mkdir -p dist || true) && rm -rf dist/*",
-    "build": "npm run --silent clean && tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json",
     "build:watch": "npm run --silent build -- --watch"
   },
   "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "eslint": "^8.36.0",
-    "eslint-plugin-jest": "^27.2.1",
-    "prettier": "^2.8.7",
-    "typescript": "^4.9.5",
-    "typescript-eslint": "^0.0.1-alpha.0"
-  }
+  "license": "MIT"
 }

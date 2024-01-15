@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "paths": {
+      "@pipeline/core": ["./node_modules/@pipeline/core/dist/*"],
+      "@pipeline/types": ["./node_modules/@pipeline/types/dist/*"],
+      "@pipeline/process": ["./node_modules/@pipeline/process/dist/*"],
+      "@pipeline/utilities": ["./node_modules/@pipeline/utilities/dist/*"],
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022"
+  }
+}
