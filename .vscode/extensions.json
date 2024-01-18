@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "formulahendry.auto-rename-tag",
+        "ecmel.vscode-html-css",
+        "orta.vscode-jest",
+        "dbaeumer.vscode-eslint",
+        "redhat.vscode-yaml",
+        "wholroyd.jinja",
+        "ms-azuretools.vscode-docker"
+    ]
+}
