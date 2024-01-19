@@ -3,7 +3,7 @@ import {
   BaseActionDefinition,
   CompositeActionDefinition,
   ContextSnapshot,
-  FinalStatus,
+  JobStatus,
   NodeActionDefinition,
   StepOutputs
 } from '@pipeline/types';
@@ -17,7 +17,7 @@ import { StepRunner, StepRunnerResult } from './stepRunner';
 import { debug } from '../utilities/log';
 
 export interface ActionResult {
-  outcome: FinalStatus;
+  outcome: JobStatus;
   outputs?: StepOutputs;
 }
 

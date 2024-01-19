@@ -1,4 +1,4 @@
-import { CurrentStatus, FinalStatus, InputOutput } from '../commonTypes';
+import { JobStatus, InputOutput } from '../commonTypes';
 import { ContextEnvironmentVariables } from './environment';
 
 /**
@@ -43,7 +43,7 @@ export interface JobSnapshot {
   /**
    * The current status of the job.
    */
-  status: CurrentStatus;
+  status: JobStatus;
 }
 
 export type JobOutput = {
@@ -57,7 +57,7 @@ export type JobOutputs = {
   [jobId: string]: JobOutput;
 };
 
-export type JobResultString = FinalStatus;
+export type JobResultString = JobStatus;
 export type JobResult = {
   /**
    * The result of a job in the reusable workflow.
@@ -94,13 +94,13 @@ export type StepResult = {
    * cancelled, or skipped. When a continue-on-error step fails, the outcome is failure, but the final conclusion
    * is success.
    */
-  outcome: FinalStatus;
+  outcome: JobStatus;
   /**
    * The result of a completed step after continue-on-error is applied. Possible values are success, failure,
    * cancelled, or skipped. When a continue-on-error step fails, the outcome is failure, but the final conclusion
    * is success.
    */
-  conclusion: FinalStatus;
+  conclusion: JobStatus;
 };
 
 /**
@@ -227,7 +227,7 @@ export interface NeedsSnapshot {
     /**
      * The result of a job that the current job depends on. Possible values are success, failure, cancelled, or skipped.
      */
-    result: FinalStatus;
+    result: JobStatus;
   };
 }
 

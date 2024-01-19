@@ -11,5 +11,4 @@ export type Expression = string;
 
 export type InputOutput = string | number | boolean | undefined;
 
-export type CurrentStatus = 'success' | 'failure' | 'cancelled';
-export type FinalStatus = CurrentStatus | 'skipped';
+export type JobStatus = "queued" | "in_progress" | "waiting" | "completed" | "neutral" | "success" | "failure" | "cancelled" | "action_required" | "timed_out" | "skipped" | "stale";

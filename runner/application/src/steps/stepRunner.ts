@@ -1,7 +1,7 @@
 import {
   ActionStepDefinition,
   CompositeActionDefinition,
-  FinalStatus,
+  JobStatus,
   JobDefinition,
   JobOutput,
   ShellStepDefinition,
@@ -22,7 +22,7 @@ type OutputMappings = {
 };
 
 export type StepRunnerResult = {
-  result: FinalStatus;
+  result: JobStatus;
   outputs?: JobOutput;
 };
 

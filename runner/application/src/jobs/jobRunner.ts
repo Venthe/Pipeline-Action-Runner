@@ -1,5 +1,5 @@
 import {
-  FinalStatus,
+  JobStatus,
   JobDefinition,
   JobOutput,
   RemoteJobDefinition
@@ -11,7 +11,7 @@ import { StepRunner } from '../steps/stepRunner';
 import { debug, info } from '../utilities/log';
 
 export interface SingleJobResult {
-  result: FinalStatus;
+  result: JobStatus;
   outputs?: JobOutput;
 }
 

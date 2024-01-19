@@ -22,7 +22,7 @@ export const checkout: CheckoutType = async (
   if (context.env.PIPELINE_VERSION_CONTROL_TYPE !== 'ssh') {
     throw new Error()
   }
-
+  
   const projectUrl = `${context.internal.gerritUrl}/${project}`;
 
   await shellMany(
