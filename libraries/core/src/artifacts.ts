@@ -34,6 +34,10 @@ export const download = async (
   { sourcePath, targetPath, context, type = RepositoryType.User }: DownloadParameters,
   { silent = false }: Options = {}
 ) => {
+  if (context.env.PIPELINE_FILE_STORAGE_TYPE !== 'nexus') {
+    throw new Error()
+  }
+
   const nexusPath = pathStrategy(context, sourcePath, type);
   const url = `${context.internal.nexusUrl}/${nexusPath}`;
   if (!silent) {
@@ -51,6 +55,10 @@ export const upload = async (
   { sourcePath, targetPath, context, type = RepositoryType.User }: UploadParameters,
   { silent = false }: Options = {}
 ) => {
+  if (context.env.PIPELINE_FILE_STORAGE_TYPE !== 'nexus') {
+    throw new Error()
+  }
+
   const nexusPath = pathStrategy(context, targetPath ?? sourcePath, type);
   const url = `${context.internal.nexusUrl}/${nexusPath}`;
   if (!silent) {

@@ -1,4 +1,4 @@
-export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables;
+export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables & SystemEnvironmentVariables;
 
 export interface RunnerEnvironmentVariables {
   [key: string]: string | undefined;
@@ -12,6 +12,10 @@ export interface RunnerEnvironmentVariables {
   RUNNER_ENV_DIRECTORY: string;
   RUNNER_ACTIONS_DIRECTORY: string;
   RUNNER_PIPELINE_DIRECTORY: string;
+}
+
+export interface SystemEnvironmentVariables {
+  PIPELINE_FILE_STORAGE_TYPE: string
 }
 
 export interface PipelineEnvironmentVariables {
