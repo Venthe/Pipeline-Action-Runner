@@ -7,15 +7,29 @@ import { debug } from '../utilities/log';
 export class SecretsManager {
   private readonly secretFilenameExtension = '.json';
 
-  private constructor(private readonly secretsDirectory: string) {}
+  private constructor(private readonly secretsDirectory: string) {
+    debug("Initializing secrets manager")
+  }
 
   public static create = (secretsDirectory: string) => new SecretsManager(secretsDirectory);
 
-  public retrieve = (): SecretsSnapshot =>
-    this.listSecretFiles()
-      .filter(this.byExtension(this.secretFilenameExtension))
-      .map(this.toKeyFilename)
-      .reduce(this.toSecret, {});
+  public retrieve = (): SecretsSnapshot => {
+    return {
+      ...this.listSecretFiles()
+        .filter(this.byExtension(this.secretFilenameExtension))
+        .map(this.toKeyFilename)
+        .reduce(this.toSecret, {}),
+      ...Object.entries(process.env)
+        .filter(([k]) => k.toLowerCase().startsWith("secret"))
+        .map(([k, v]) => {
+          return [k.replace("SECRET_", ""), v]
+        })
+        .reduce((acc, [k, v]) => {
+          acc[k as string] = v
+          return acc;
+        }, {})
+    };
+  };
 
   private listSecretFiles = () => fs.readdirSync(this.secretsDirectory);
   private byExtension = (extension: string) => (filename) => filename.includes(extension);
