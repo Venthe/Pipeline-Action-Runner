@@ -4,6 +4,7 @@ import { PipelineEnvironmentVariables, SystemEnvironmentVariables } from '@pipel
 import { exceptionMapper } from './utilities';
 import { error } from '@pipeline/core';
 import { loadJobData, setup } from './utilities/setup';
+import { updateJobStatusInternal } from './utilities/orchestrator';
 import { SecretsManager } from './secrets/secretsManager';
 import { prepareDefaultEnvironmentVariables } from './configuration/environment';
 
@@ -22,6 +23,7 @@ export const main = async () => {
     }
   } catch (exception: any) {
     error(`Unhandled fatal exception: ${exceptionMapper(exception)}`);
+    updateJobStatusInternal(env.PIPELINE_ORCHESTRATOR_URL, env.PIPELINE_WORKFLOW_EXECUTION_ID, env.PIPELINE_JOB_NAME, 'failure')
     throw exception instanceof Error ? exception : new Error(JSON.stringify(exception));
   }
 };

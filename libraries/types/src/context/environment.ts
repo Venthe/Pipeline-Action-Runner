@@ -29,6 +29,8 @@ export interface PipelineEnvironmentVariables {
   [key: string]: string | undefined;
 
   PIPELINE_DEBUG?: string;
+  PIPELINE_WORKFLOW: string;
+  PIPELINE_WORKFLOW_EXECUTION_ID: string
   PIPELINE_JOB_NAME: string;
   PIPELINE_BUILD_ID: string;
 }
