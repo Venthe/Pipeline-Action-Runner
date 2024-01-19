@@ -19,7 +19,12 @@ export const checkout: CheckoutType = async (
   await shell(`mkdir --parents ${finalCwd}`, { silent: rest.silent ?? false });
 
   console.debug(`Downloading from Gerrit: ${project}, ${revision}, ${cwd}`);
+  if (context.env.PIPELINE_VERSION_CONTROL_TYPE !== 'ssh') {
+    throw new Error()
+  }
+
   const projectUrl = `${context.internal.gerritUrl}/${project}`;
+
   await shellMany(
     checkoutCommands({
       repository: projectUrl,
