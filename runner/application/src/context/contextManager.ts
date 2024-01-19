@@ -57,7 +57,6 @@ export class ContextManager {
         projectUrl:
           (this.event as any)?.metadata?.url ?? this.environmentVariables.PIPELINE_GERRIT_URL,
         gerritUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
-        dockerUrl: this.environmentVariables.PIPELINE_DOCKER_URL,
         nexusUrl: this.environmentVariables.PIPELINE_NEXUS_URL,
         pipelinesDirectory: this.environmentVariables.RUNNER_PIPELINE_DIRECTORY,
         workflow: this.environmentVariables.PIPELINE_WORKFLOW,

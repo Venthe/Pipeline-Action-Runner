@@ -280,7 +280,6 @@ export type InternalSnapshot = {
   gerritUrl: string;
   projectUrl: string;
   nexusUrl: string;
-  dockerUrl: string;
   jenkinsUrl: string;
   dockerHost?: string;
 
