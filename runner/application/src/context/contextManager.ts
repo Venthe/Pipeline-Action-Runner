@@ -7,6 +7,7 @@ import {
 } from '@pipeline/types';
 import * as process from 'process';
 import { SecretsManager } from '../secrets/secretsManager';
+import { isDebug } from '@pipeline/core';
 import { throwThis } from '@pipeline/utilities';
 import { JobData } from '../types';
 
@@ -48,7 +49,8 @@ export class ContextManager {
       env: this.environmentVariables,
       runner: {
         arch: process.arch,
-        os: process.platform
+        os: process.platform,
+        debug: isDebug()
       },
       secrets: this.secretsManager.retrieve(),
       internal: {

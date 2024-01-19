@@ -76,7 +76,7 @@ export type AddToPathMessage = Message<MessageType.ADD_TO_PATH, string>;
 const message = <T extends Message<MessageType, any>>(message: T): string =>
   JSON.stringify(message);
 
-export const isDebug = () => process.env.PIPELINE_DEBUG === '1';
+export const isDebug = () => !!process.env.PIPELINE_DEBUG ?? false;
 /** Writes to STDOUT */
 export const info = (message: string) => {
   process.stdout.write(`${message}${EOL}`);
