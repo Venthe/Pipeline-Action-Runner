@@ -19,7 +19,7 @@ export class JobRunner {
   constructor(
     private readonly contextManager: ContextManager
   ) {
-    this.stepRunner = StepRunner.forJob(this.contextManager.stepsDefinitions, this.contextManager.outcomes, contextManager);
+    this.stepRunner = StepRunner.forJob(contextManager);
   }
 
   async run(): Promise<SingleJobResult> {

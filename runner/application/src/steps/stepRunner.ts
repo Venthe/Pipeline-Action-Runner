@@ -57,12 +57,12 @@ export class StepRunner {
     return stepRunner;
   }
 
-  public static forJob(steps: (DockerStepDefinition | ShellStepDefinition | ActionStepDefinition)[], outputs: OutputMappings, contextManager: ContextManager): StepRunner {
+  public static forJob(contextManager: ContextManager): StepRunner {
     return new StepRunner({
-      stepDefinitions: steps,
+      stepDefinitions: contextManager.stepsDefinitions,
       contextManager: contextManager,
       managerName: contextManager.contextSnapshot.internal.job,
-      outputs: outputs
+      outputs: contextManager.outcomes
     });
   }
 

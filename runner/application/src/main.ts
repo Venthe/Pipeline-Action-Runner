@@ -1,5 +1,4 @@
 import * as process from 'process';
-import { WorkflowOrchestrator } from './workflow/workflowOrchestrator';
 import { PipelineEnvironmentVariables, SystemEnvironmentVariables } from '@pipeline/types';
 import { exceptionMapper } from './utilities';
 import { error } from '@pipeline/core';
@@ -7,15 +6,18 @@ import { loadJobData, setup } from './utilities/setup';
 import { updateJobStatusInternal } from './utilities/orchestrator';
 import { SecretsManager } from './secrets/secretsManager';
 import { prepareDefaultEnvironmentVariables } from './configuration/environment';
+import { ContextManager } from './context/contextManager';
+import { JobRunner } from './jobs/jobRunner';
 
 export const main = async () => {
-  const env = {...process.env as (PipelineEnvironmentVariables & SystemEnvironmentVariables), ...prepareDefaultEnvironmentVariables()};
+  const env = { ...process.env as (PipelineEnvironmentVariables & SystemEnvironmentVariables), ...prepareDefaultEnvironmentVariables() };
   try {
     await setup(env);
     const jobData = await loadJobData(env);
     const secretsManager = SecretsManager.create(env.RUNNER_SECRETS_DIRECTORY);
+    const contextManager = ContextManager.forWorkflow({ environmentVariables: env, jobData, secretsManager });
 
-    const result = await new WorkflowOrchestrator(env, jobData, secretsManager).run()
+    const result = await new JobRunner(contextManager).run()
 
     if (result.result === 'failure') {
       process.exit(1);
