@@ -88,6 +88,11 @@ function build_container() {
   RUNNER_BASE_IMAGE=${RUNNER_BASE_IMAGE} RUNNER_IMAGE=${RUNNER_IMAGE} npm run build:container --workspace runner/application
 }
 
+function publish_container() {
+  docker login docker.home.arpa
+  docker push "${RUNNER_IMAGE}"
+}
+
 function build_libraries() {
   build_library types
   build_library utilities
