@@ -1,14 +1,12 @@
 import {
   JobStatus,
-  JobDefinition,
-  JobOutput,
-  RemoteJobDefinition
+  JobOutput
 } from '@pipeline/types';
-import { renderTemplate } from '../utilities/template';
 import { ContextManager } from '../context/contextManager';
 import { subtitle } from '@pipeline/utilities';
 import { StepRunner } from '../steps/stepRunner';
-import { debug, info } from '../utilities/log';
+import { info } from '../utilities/log';
+import { updateJobStatus } from '../utilities/orchestrator';
 
 export interface SingleJobResult {
   result: JobStatus;
@@ -16,64 +14,20 @@ export interface SingleJobResult {
 }
 
 export class JobRunner {
-  private readonly jobManager: JobManager;
+  private readonly stepRunner: StepRunner;
 
   constructor(
-    readonly job: JobDefinition | RemoteJobDefinition,
     private readonly contextManager: ContextManager
   ) {
-    this.jobManager = this.mapJobToManger(job);
-  }
-
-  mapJobToManger(job: JobDefinition | RemoteJobDefinition): JobManager {
-    debug(JSON.stringify(job));
-    return (job as any).steps !== undefined
-      ? new LocalJobManager(job as JobDefinition, this.contextManager)
-      : new RemoteJobManager(job as RemoteJobDefinition);
+    this.stepRunner = StepRunner.forJob(this.contextManager.stepsDefinitions, this.contextManager.outcomes, contextManager);
   }
 
   async run(): Promise<SingleJobResult> {
     info(subtitle(`Running job ${this.contextManager.contextSnapshot.internal.job}`));
-    return await this.jobManager.run();
-  }
-}
+    await updateJobStatus(this.contextManager.contextSnapshot, 'in_progress')
+    const outcome = await this.stepRunner.run();
 
-interface JobManager {
-  run(): Promise<SingleJobResult>;
-}
-
-class LocalJobManager implements JobManager {
-  private stepRunner: StepRunner;
-
-  constructor(
-    private readonly jobDefinition: JobDefinition,
-    private readonly contextManager: ContextManager
-  ) {
-    // FIXME: This pollutes env variables for any subsequent job - including nested ones.
-    //  verify if this is a problem
-    this.contextManager.appendEnvironmentVariables(this.jobDefinition.env);
-    this.stepRunner = StepRunner.forJob(this.jobDefinition, contextManager);
-  }
-
-  async run(): Promise<SingleJobResult> {
-    if (
-      this.jobDefinition?.if &&
-      !renderTemplate(this.jobDefinition?.if, this.contextManager.contextSnapshot)
-    ) {
-      return {
-        result: 'skipped'
-      };
-    }
-    return await this.stepRunner.run();
-  }
-}
-
-class RemoteJobManager implements JobManager {
-  constructor(private readonly jobDefinition: RemoteJobDefinition) {
-    throw new Error('Unsupported operation exception');
-  }
-
-  async run(): Promise<SingleJobResult> {
-    throw new Error('Unsupported operation exception');
+    await updateJobStatus(this.contextManager.contextSnapshot, outcome.result, outcome.outputs)
+    return outcome;
   }
 }

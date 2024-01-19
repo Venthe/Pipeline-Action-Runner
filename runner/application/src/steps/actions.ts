@@ -78,8 +78,7 @@ export class Action {
           project,
           revision,
           cwd: context.contextSnapshot.internal.actionsDirectory,
-          directory: project,
-          silent: true
+          directory: project
         },
         context.contextSnapshot
       );

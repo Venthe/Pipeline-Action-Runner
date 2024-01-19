@@ -14,9 +14,8 @@ export const main = async () => {
     await setup(env);
     const jobData = await loadJobData(env);
     const secretsManager = SecretsManager.create(env.RUNNER_SECRETS_DIRECTORY);
-    const workflowOrchestrator = await WorkflowOrchestrator.create(env, jobData, secretsManager);
 
-    const result = await workflowOrchestrator.run();
+    const result = await new WorkflowOrchestrator(env, jobData, secretsManager).run()
 
     if (result.result === 'failure') {
       process.exit(1);

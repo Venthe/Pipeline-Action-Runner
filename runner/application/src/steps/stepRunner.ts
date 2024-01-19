@@ -1,9 +1,9 @@
 import {
   ActionStepDefinition,
   CompositeActionDefinition,
-  JobStatus,
-  JobDefinition,
+  DockerStepDefinition,
   JobOutput,
+  JobStatus,
   ShellStepDefinition,
   StepResult
 } from '@pipeline/types';
@@ -15,6 +15,7 @@ import { exceptionMapper } from '../utilities';
 import { ActionResult } from './actions';
 import { shouldRunExpression } from './script';
 import { debug, error, info } from '../utilities/log';
+import { updateStepStatus } from '../utilities/orchestrator';
 
 type OutputMappings = {
   // ${{ steps.step1.outputs.test }}
@@ -29,9 +30,9 @@ export type StepRunnerResult = {
 export class StepRunner {
   readonly managerName: string;
   private steps: (ActionStepDefinition | ShellStepDefinition)[] = [];
-  private readonly nextIndex: () => number;
   private readonly contextManager: ContextManager;
   private readonly outputs?: OutputMappings;
+  private informAboutProgress: boolean = true;
 
   public forCompositeStep(
     step: ActionStepDefinition<any>,
@@ -46,55 +47,52 @@ export class StepRunner {
       ${JSON.stringify(compositeStep, undefined, 2)}\n
       ${JSON.stringify(outputs, undefined, 2)}`);
 
-    return new StepRunner({
+    const stepRunner = new StepRunner({
       stepDefinitions: compositeStep.runs.steps,
       contextManager: this.contextManager.forComposite(step),
       managerName: `${this.managerName}|${compositeStep.name}`,
-      nextIndex: this.nextIndex,
       outputs
     });
+    stepRunner.informAboutProgress = false
+    return stepRunner;
   }
 
-  public static forJob(stepDefinitions: JobDefinition, contextManager: ContextManager): StepRunner {
-    const iter = { value: 1 };
-
+  public static forJob(steps: (DockerStepDefinition | ShellStepDefinition | ActionStepDefinition)[], outputs: OutputMappings, contextManager: ContextManager): StepRunner {
     return new StepRunner({
-      stepDefinitions: stepDefinitions.steps,
+      stepDefinitions: steps,
       contextManager: contextManager,
-      managerName: stepDefinitions.name ?? contextManager.contextSnapshot.internal.job,
-      nextIndex: () => iter.value++,
-      outputs: stepDefinitions.outputs
+      managerName: contextManager.contextSnapshot.internal.job,
+      outputs: outputs
     });
   }
 
   constructor({
     stepDefinitions,
     contextManager,
-    nextIndex,
     ...rest
   }: {
     stepDefinitions: (ActionStepDefinition | ShellStepDefinition)[];
     contextManager: ContextManager;
     managerName: string;
-    nextIndex: () => number;
     outputs?: OutputMappings;
   }) {
     this.managerName = rest.managerName;
     this.steps = stepDefinitions;
     this.contextManager = contextManager;
-    this.nextIndex = nextIndex;
     this.outputs = rest.outputs;
   }
 
   public async run(): Promise<StepRunnerResult> {
     try {
-      while (this.steps.length > 0) {
-        const mappedStep = StepFactory.from(this.getCurrentStep(), this.nextIndex());
+      for(let index = 0; index< this.steps.length; index++) {
+        const mappedStep = StepFactory.from(this.steps[index], index);
 
         info(
           step(`[${mappedStep.id}][${this.managerName}]: ${mappedStep.name}`) +
-            ` - ${this.stateSuffix(mappedStep)}`
+          ` - ${this.stateSuffix(mappedStep)}`
         );
+
+        if (this.informAboutProgress) { await updateStepStatus(this.contextManager.contextSnapshot, index, 'in_progress') }
 
         if (!this.isAnyStepConclusionFailure() || this.shouldRunFromScript(mappedStep)) {
           const result: ActionResult = await mappedStep.run(this, this.contextManager);
@@ -114,6 +112,9 @@ export class StepRunner {
           } as StepResult);
         }
 
+        if (this.informAboutProgress) { await updateStepStatus(this.contextManager.contextSnapshot, index, this.contextManager.getResult(mappedStep.id).outcome) }
+
+        info(`[Step finished] ${mappedStep.name} - ${this.contextManager.getResult(mappedStep.id).outcome}`)
         debug(
           `[Step finished] ${mappedStep.name}\nJSON.stringify(this.outputs, undefined, 2)\nJSON.stringify(this.contextManager.contextSnapshot.steps, undefined, 2)`
         );
@@ -166,13 +167,5 @@ export class StepRunner {
       .map((key) => steps[key])
       .map((a) => a.outcome)
       .filter((a) => a.toLocaleLowerCase().includes('failure'))[0];
-  }
-
-  private getCurrentStep(): ActionStepDefinition | ShellStepDefinition {
-    const currentStep: ActionStepDefinition | ShellStepDefinition | undefined = this.steps.shift();
-    if (currentStep === undefined) {
-      throw new Error('Step should never be undefined');
-    }
-    return currentStep;
   }
 }

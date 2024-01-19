@@ -2,6 +2,8 @@ import {
   ActionStepDefinition,
   ContextEnvironmentVariables,
   ContextSnapshot,
+  DockerStepDefinition,
+  ShellStepDefinition,
   StepResult,
   StepsResultSnapshot
 } from '@pipeline/types';
@@ -9,9 +11,7 @@ import * as process from 'process';
 import { SecretsManager } from '../secrets/secretsManager';
 import { isDebug } from '@pipeline/core';
 import { throwThis } from '@pipeline/utilities';
-import { JobData } from '../types';
-
-type Inputs = { [key: string]: string | number | boolean | undefined };
+import { Inputs, JobData } from '../types';
 
 export class ContextManager {
   private readonly secretsManager: SecretsManager;
@@ -43,6 +43,14 @@ export class ContextManager {
     Object.keys(environmentVariables).forEach((key) => {
       process.env[key] = environmentVariables[key];
     });
+  }
+
+  get stepsDefinitions(): (DockerStepDefinition | ShellStepDefinition | ActionStepDefinition)[] {
+    return this.jobData.steps;
+  }
+
+  get outcomes(): {[key: string]: string} {
+    return this.jobData.outputs as {[key: string]: string};
   }
 
   get contextSnapshot(): ContextSnapshot {
@@ -111,5 +119,9 @@ export class ContextManager {
   setResult(id: string | undefined, stepResult: StepResult) {
     this.steps = this.steps || {};
     this.steps[id ?? throwThis('ID for a step must be set')] = stepResult;
+  }
+
+  getResult(id: string): StepResult {
+    return this.steps?.[id ?? throwThis('ID for a step must be set')] ?? throwThis('');
   }
 }

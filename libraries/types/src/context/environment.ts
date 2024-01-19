@@ -38,4 +38,5 @@ export interface PipelineEnvironmentVariables {
 export interface DebugEnvironmentVariables {
   __DEBUG_SSH_PRIVATE_KEY?: string
   __DEBUG_JOB_DATA?: string
+  __DEBUG_DONT_UPDATE_STATUS?: string
 }
