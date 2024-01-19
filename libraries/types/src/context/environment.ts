@@ -17,6 +17,8 @@ export interface RunnerEnvironmentVariables {
 export interface SystemEnvironmentVariables {
   PIPELINE_FILE_STORAGE_TYPE: string
   PIPELINE_VERSION_CONTROL_TYPE: string
+  PIPELINE_VERSION_CONTROL_SSH_PORT: string
+  PIPELINE_VERSION_CONTROL_SSH_HOST: string
 }
 
 export interface PipelineEnvironmentVariables {
