@@ -4,6 +4,7 @@ import { exceptionMapper, saveObjectAsFile } from './utilities';
 import { error } from '@pipeline/core';
 import { ContextEnvironmentVariables } from '@pipeline/types';
 import { loadJobData, setup } from './utilities/setup';
+import { SecretsManager } from './secrets/secretsManager';
 
 export const main = async () => {
   try {
@@ -11,7 +12,9 @@ export const main = async () => {
 
     await setup(env);
     const jobData = await loadJobData(env);
-    const workflowOrchestrator = await WorkflowOrchestrator.create(env, jobData);
+    const secretsManager = SecretsManager.create(env.RUNNER_SECRETS_DIRECTORY);
+    const workflowOrchestrator = await WorkflowOrchestrator.create(env, jobData, secretsManager);
+
     const result = await workflowOrchestrator.run();
 
     saveObjectAsFile('/runner/result.json', result);

@@ -27,11 +27,12 @@ export class ContextManager {
     environmentVariables: ContextEnvironmentVariables;
     inputs?: Inputs;
     jobData: JobData;
+    secretsManager: SecretsManager;
   }) {
     this.environmentVariables = environmentVariables;
     ContextManager.updateProcessEnvironmentVariables(environmentVariables);
     this.jobData = rest.jobData
-    this.secretsManager = SecretsManager.create(this.environmentVariables.RUNNER_SECRETS_DIRECTORY);
+    this.secretsManager = rest.secretsManager
 
     this.inputs = { ...(rest.inputs || {}), ...(rest.jobData.inputs || {}) };
   }
@@ -97,11 +98,12 @@ export class ContextManager {
     return new ContextManager({
       environmentVariables: ContextManager.clone(this.environmentVariables),
       inputs: step.with,
-      jobData: this.jobData
+      jobData: this.jobData,
+      secretsManager: this.secretsManager
     });
   }
 
-  public static forWorkflow(opts: { environmentVariables: ContextEnvironmentVariables, jobData: JobData }) {
+  public static forWorkflow(opts: { environmentVariables: ContextEnvironmentVariables, jobData: JobData, secretsManager: SecretsManager }) {
     return new ContextManager(opts);
   }
 

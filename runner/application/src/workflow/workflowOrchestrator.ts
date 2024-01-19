@@ -8,6 +8,7 @@ import { checkoutCommands, info } from '@pipeline/core';
 import { prepareDefaultEnvironmentVariables } from '../configuration/environment';
 import { renderTemplate } from '../utilities/template';
 import { JobData } from '../types';
+import { SecretsManager } from '../secrets/secretsManager';
 
 export class WorkflowOrchestrator {
   private readonly contextManager: ContextManager;
@@ -15,16 +16,17 @@ export class WorkflowOrchestrator {
   private workflow: Workflow | undefined;
   private jobRunner: JobRunner | undefined;
 
-  public static async create(env: ContextEnvironmentVariables, jobData: JobData) {
-    const workflowOrchestrator = new WorkflowOrchestrator(env, jobData);
+  public static async create(env: ContextEnvironmentVariables, jobData: JobData, secretsManager: SecretsManager) {
+    const workflowOrchestrator = new WorkflowOrchestrator(env, jobData, secretsManager);
     await workflowOrchestrator.postConstruct();
     return workflowOrchestrator;
   }
 
-  private constructor(readonly env: ContextEnvironmentVariables, readonly jobData: JobData) {
+  private constructor(readonly env: ContextEnvironmentVariables, readonly jobData: JobData, readonly secretsManager: SecretsManager) {
     this.contextManager = ContextManager.forWorkflow({
       environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() },
-      jobData
+      jobData,
+      secretsManager
     });
   }
 
