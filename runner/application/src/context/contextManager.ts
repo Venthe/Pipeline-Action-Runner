@@ -61,8 +61,7 @@ export class ContextManager {
         refName: this.jobData.ref,
         repository: this.jobData.projectName,
         workspace: this.environmentVariables.RUNNER_WORKSPACE_DIRECTORY,
-        // FIXME: This is incorrect URL
-        projectUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
+        orchestratorUrl: this.environmentVariables.PIPELINE_ORCHESTRATOR_URL,
         workflow: this.jobData.workflow,
         pipelinesDirectory: this.environmentVariables.RUNNER_PIPELINE_DIRECTORY,
         actionsDirectory: this.environmentVariables.RUNNER_ACTIONS_DIRECTORY,

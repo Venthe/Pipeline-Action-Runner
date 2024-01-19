@@ -277,7 +277,7 @@ export type InternalSnapshot = {
   /**
    * The URL of the <SYSTEM> REST API.
    **/
-  projectUrl: string;
+  orchestratorUrl: string;
 
   /**
    * The name of the action currently running, or the id of a step. <SYSTEM> removes special characters, and uses the
