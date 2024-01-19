@@ -5,19 +5,18 @@ import {
   StepResult,
   StepsResultSnapshot
 } from '@pipeline/types';
-import { loadYamlFile } from '../utilities';
 import * as process from 'process';
 import { SecretsManager } from '../secrets/secretsManager';
 import { throwThis } from '@pipeline/utilities';
+import { JobData } from '../types';
 
 type Inputs = { [key: string]: string | number | boolean | undefined };
 
 export class ContextManager {
-  // FIXME: Strongly type the event
-  private readonly event: any;
   private readonly secretsManager: SecretsManager;
   private readonly environmentVariables: ContextEnvironmentVariables;
   private readonly inputs?: Inputs;
+  private readonly jobData: JobData;
   private steps?: StepsResultSnapshot;
 
   private constructor({
@@ -26,13 +25,14 @@ export class ContextManager {
   }: {
     environmentVariables: ContextEnvironmentVariables;
     inputs?: Inputs;
+    jobData: JobData;
   }) {
     this.environmentVariables = environmentVariables;
     ContextManager.updateProcessEnvironmentVariables(environmentVariables);
+    this.jobData = rest.jobData
     this.secretsManager = SecretsManager.create(this.environmentVariables.RUNNER_SECRETS_DIRECTORY);
 
-    this.event = loadYamlFile(`${environmentVariables.RUNNER_METADATA_DIRECTORY}/event.yaml`);
-    this.inputs = { ...(rest.inputs || {}), ...(this.event?.additionalProperties?.inputs || {}) };
+    this.inputs = { ...(rest.inputs || {}), ...(rest.jobData.inputs || {}) };
   }
 
   private static updateProcessEnvironmentVariables(
@@ -52,17 +52,20 @@ export class ContextManager {
       },
       secrets: this.secretsManager.retrieve(),
       internal: {
-        event: this.event,
+        event: this.jobData.event,
+        eventName: this.jobData.event.type,
+        ref: this.jobData.ref,
+        refName: this.jobData.ref,
+        repository: this.jobData.projectName,
         workspace: this.environmentVariables.RUNNER_WORKSPACE_DIRECTORY,
-        projectUrl:
-          (this.event as any)?.metadata?.url ?? this.environmentVariables.PIPELINE_GERRIT_URL,
+        // FIXME: This is incorrect URL
+        projectUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
+        workflow: this.jobData.workflow,
         gerritUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
         nexusUrl: this.environmentVariables.PIPELINE_NEXUS_URL,
         pipelinesDirectory: this.environmentVariables.RUNNER_PIPELINE_DIRECTORY,
-        workflow: this.environmentVariables.PIPELINE_WORKFLOW,
         actionsDirectory: this.environmentVariables.RUNNER_ACTIONS_DIRECTORY,
         binariesDirectory: this.environmentVariables.RUNNER_BINARIES_DIRECTORY,
-        eventName: this.event.type,
         job: this.environmentVariables.PIPELINE_JOB_NAME
       },
       ...{ inputs: this.inputs },
@@ -93,11 +96,12 @@ export class ContextManager {
   public forComposite(step: ActionStepDefinition<any>) {
     return new ContextManager({
       environmentVariables: ContextManager.clone(this.environmentVariables),
-      inputs: step.with
+      inputs: step.with,
+      jobData: this.jobData
     });
   }
 
-  public static forWorkflow(opts: { environmentVariables: ContextEnvironmentVariables }) {
+  public static forWorkflow(opts: { environmentVariables: ContextEnvironmentVariables, jobData: JobData }) {
     return new ContextManager(opts);
   }
 

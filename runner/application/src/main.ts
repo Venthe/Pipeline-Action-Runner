@@ -3,14 +3,15 @@ import { WorkflowOrchestrator } from './workflow/workflowOrchestrator';
 import { exceptionMapper, saveObjectAsFile } from './utilities';
 import { error } from '@pipeline/core';
 import { ContextEnvironmentVariables } from '@pipeline/types';
-import { setup } from './utilities/setup';
+import { loadJobData, setup } from './utilities/setup';
 
 export const main = async () => {
   try {
     const env = process.env as ContextEnvironmentVariables;
 
     await setup(env);
-    const workflowOrchestrator = await WorkflowOrchestrator.create(env);
+    const jobData = await loadJobData(env);
+    const workflowOrchestrator = await WorkflowOrchestrator.create(env, jobData);
     const result = await workflowOrchestrator.run();
 
     saveObjectAsFile('/runner/result.json', result);

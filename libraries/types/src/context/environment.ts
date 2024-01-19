@@ -27,9 +27,9 @@ export interface PipelineEnvironmentVariables {
   PIPELINE_DEBUG?: string;
   PIPELINE_JOB_NAME: string;
   PIPELINE_BUILD_ID: string;
-  PIPELINE_WORKFLOW: string;
 }
 
 export interface DebugEnvironmentVariables {
   __DEBUG_SSH_PRIVATE_KEY?: string
+  __DEBUG_JOB_DATA?: string
 }

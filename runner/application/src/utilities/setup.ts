@@ -1,6 +1,8 @@
 import { shellMany } from "@pipeline/process";
-import { ContextEnvironmentVariables, DebugEnvironmentVariables, SystemEnvironmentVariables } from "@pipeline/types";
+import { ContextEnvironmentVariables, DebugEnvironmentVariables, PipelineEnvironmentVariables, SystemEnvironmentVariables } from "@pipeline/types";
 import fs from 'fs';
+import { JobData } from "../types";
+import * as YAML from 'js-yaml';
 
 export const setup = async (env: ContextEnvironmentVariables) => {
     await configureGit();
@@ -34,6 +36,18 @@ async function addVersionControlToKnownHosts(env: SystemEnvironmentVariables) {
         `ssh-keyscan -t rsa -p ${env.PIPELINE_VERSION_CONTROL_SSH_PORT} -H ${env.PIPELINE_VERSION_CONTROL_SSH_HOST} >> /root/.ssh/known_hosts`,
         'chmod u=rwx,o=,g= /root/.ssh/id_rsa'
     ]);
+}
+
+export async function loadJobData(env: PipelineEnvironmentVariables & SystemEnvironmentVariables): Promise<JobData> {
+    if (process.env.__DEBUG_JOB_DATA) {
+        return YAML.load(Buffer.from(process.env.__DEBUG_JOB_DATA, 'base64').toString()) as JobData
+    }
+
+    return JSON.parse(await fetch(`${env.PIPELINE_ORCHESTRATOR_URL}/workflow-executions/${env.PIPELINE_WORKFLOW_EXECUTION_ID}/jobs/${env.PIPELINE_JOB_NAME}`)
+        .then(e => e.text())
+        .catch(rejected => {
+            console.log(rejected);
+        }) as string) as JobData
 }
 
 async function createRequiredDirectories(env: ContextEnvironmentVariables) {

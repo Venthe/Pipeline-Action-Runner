@@ -11,7 +11,7 @@ import { shellMany } from '@pipeline/process';
     throw new Error();
   }
 
-  const projectUrl = `${context.internal.projectUrl}/${(context.internal.event as any).metadata.projectName}`;
+  const projectUrl = `${context.internal.projectUrl}/${context.internal.repository}`;
   const event: any = context.internal.event;
   await shellMany(
     checkoutCommands({

@@ -7,6 +7,7 @@ import { title } from '@pipeline/utilities';
 import { checkoutCommands, info } from '@pipeline/core';
 import { prepareDefaultEnvironmentVariables } from '../configuration/environment';
 import { renderTemplate } from '../utilities/template';
+import { JobData } from '../types';
 
 export class WorkflowOrchestrator {
   private readonly contextManager: ContextManager;
@@ -14,15 +15,16 @@ export class WorkflowOrchestrator {
   private workflow: Workflow | undefined;
   private jobRunner: JobRunner | undefined;
 
-  public static async create(env: ContextEnvironmentVariables) {
-    const workflowOrchestrator = new WorkflowOrchestrator(env);
+  public static async create(env: ContextEnvironmentVariables, jobData: JobData) {
+    const workflowOrchestrator = new WorkflowOrchestrator(env, jobData);
     await workflowOrchestrator.postConstruct();
     return workflowOrchestrator;
   }
 
-  private constructor(readonly env: ContextEnvironmentVariables) {
+  private constructor(readonly env: ContextEnvironmentVariables, readonly jobData: JobData) {
     this.contextManager = ContextManager.forWorkflow({
-      environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() }
+      environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() },
+      jobData
     });
   }
 

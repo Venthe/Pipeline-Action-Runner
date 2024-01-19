@@ -73,13 +73,7 @@ export const upload = async (
 };
 
 const pathStrategy = (context: ContextSnapshot, sourcePath, type?: RepositoryType) => {
-  const event: any = context.internal.event;
-  if (!event.metadata?.pojectName || !event.metadata?.branchName) {
-    // FIXME: Strongly type generic event
-    throw new Error()
-  }
-  // FIXME: Use data from the context
   return type === RepositoryType.User
-    ? `${['pipeline', event.metadata.projectName, event.metadata.branchName, sourcePath].join('/')}`
+    ? `${['pipeline', context.internal.repository, context.internal.refName, sourcePath].join('/')}`
     : `${sourcePath}`;
 };
