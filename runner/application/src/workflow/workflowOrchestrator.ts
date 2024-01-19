@@ -1,15 +1,12 @@
-import { ContextSnapshot, Workflow } from '@pipeline/types';
+import { ContextEnvironmentVariables, ContextSnapshot, Workflow } from '@pipeline/types';
 import { JobRunner, SingleJobResult } from '../jobs/jobRunner';
 import { ContextManager } from '../context/contextManager';
 import { loadYamlFile, normalizeEvent } from '../utilities';
-import {
-  PipelineEnvironmentVariables,
-  prepareDefaultEnvironmentVariables
-} from '../configuration/environment';
 import { shellMany } from '@pipeline/process';
 import { title } from '@pipeline/utilities';
-import { renderTemplate } from '../utilities/template';
 import { checkoutCommands, info } from '@pipeline/core';
+import { prepareDefaultEnvironmentVariables } from '../configuration/environment';
+import { renderTemplate } from '../utilities/template';
 
 export class WorkflowOrchestrator {
   private readonly contextManager: ContextManager;
@@ -17,13 +14,13 @@ export class WorkflowOrchestrator {
   private workflow: Workflow | undefined;
   private jobRunner: JobRunner | undefined;
 
-  public static async create(env: PipelineEnvironmentVariables) {
+  public static async create(env: ContextEnvironmentVariables) {
     const workflowOrchestrator = new WorkflowOrchestrator(env);
     await workflowOrchestrator.postConstruct();
     return workflowOrchestrator;
   }
 
-  private constructor(readonly env: PipelineEnvironmentVariables) {
+  private constructor(readonly env: ContextEnvironmentVariables) {
     this.contextManager = ContextManager.forWorkflow({
       environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() }
     });

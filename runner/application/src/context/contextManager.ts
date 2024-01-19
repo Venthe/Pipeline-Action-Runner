@@ -1,11 +1,11 @@
 import {
   ActionStepDefinition,
+  ContextEnvironmentVariables,
   ContextSnapshot,
   GerritEventSnapshot,
   StepResult,
   StepsResultSnapshot
 } from '@pipeline/types';
-import { ContextEnvironmentVariables } from '../configuration/environment';
 import { loadYamlFile } from '../utilities';
 import * as process from 'process';
 import { SecretsManager } from '../secrets/secretsManager';

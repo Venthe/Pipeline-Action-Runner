@@ -1,5 +1,6 @@
-import {CurrentStatus, FinalStatus, InputOutput} from '../commonTypes';
-import {GerritEventSnapshot} from './gerritEventSnapshot';
+import { CurrentStatus, FinalStatus, InputOutput } from '../commonTypes';
+import { ContextEnvironmentVariables } from './environment';
+import { GerritEventSnapshot } from './gerritEventSnapshot';
 
 /**
  * This context changes for each job in a workflow run. You can access this context from any step in a job. This object
@@ -248,7 +249,7 @@ export interface InputsSnapshot {
  */
 type EnvironmentVariablesSnapshot = {
   [key: string]: string | undefined;
-};
+} & ContextEnvironmentVariables;
 
 export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
   /**
