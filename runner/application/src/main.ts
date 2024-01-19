@@ -1,6 +1,6 @@
 import * as process from 'process';
 import { WorkflowOrchestrator } from './workflow/workflowOrchestrator';
-import { exceptionMapper, saveObjectAsFile } from './utilities';
+import { exceptionMapper } from './utilities';
 import { error } from '@pipeline/core';
 import { ContextEnvironmentVariables } from '@pipeline/types';
 import { loadJobData, setup } from './utilities/setup';
@@ -17,7 +17,6 @@ export const main = async () => {
 
     const result = await workflowOrchestrator.run();
 
-    saveObjectAsFile('/runner/result.json', result);
     if (result.result === 'failure') {
       process.exit(1);
     }
