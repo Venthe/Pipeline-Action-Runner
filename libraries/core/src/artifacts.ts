@@ -1,5 +1,5 @@
 import { password, shell } from '@pipeline/process';
-import { ContextSnapshot, GerritEventSnapshot, SecretsSnapshot } from '@pipeline/types';
+import { ContextSnapshot, SecretsSnapshot } from '@pipeline/types';
 
 export enum RepositoryType {
   User,
@@ -65,7 +65,12 @@ export const upload = async (
 };
 
 const pathStrategy = (context: ContextSnapshot, sourcePath, type?: RepositoryType) => {
-  const event: GerritEventSnapshot = context.internal.event;
+  const event: any = context.internal.event;
+  if (!event.metadata?.pojectName || !event.metadata?.branchName) {
+    // FIXME: Strongly type generic event
+    throw new Error()
+  }
+  // FIXME: Use data from the context
   return type === RepositoryType.User
     ? `${['pipeline', event.metadata.projectName, event.metadata.branchName, sourcePath].join('/')}`
     : `${sourcePath}`;

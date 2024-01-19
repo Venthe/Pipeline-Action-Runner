@@ -2,7 +2,6 @@ import {
   ActionStepDefinition,
   ContextEnvironmentVariables,
   ContextSnapshot,
-  GerritEventSnapshot,
   StepResult,
   StepsResultSnapshot
 } from '@pipeline/types';
@@ -13,8 +12,9 @@ import { throwThis } from '@pipeline/utilities';
 
 type Inputs = { [key: string]: string | number | boolean | undefined };
 
-export class ContextManager<T extends GerritEventSnapshot & object = GerritEventSnapshot> {
-  private readonly event: T;
+export class ContextManager {
+  // FIXME: Strongly type the event
+  private readonly event: any;
   private readonly secretsManager: SecretsManager;
   private readonly environmentVariables: ContextEnvironmentVariables;
   private readonly inputs?: Inputs;
@@ -31,7 +31,7 @@ export class ContextManager<T extends GerritEventSnapshot & object = GerritEvent
     ContextManager.updateProcessEnvironmentVariables(environmentVariables);
     this.secretsManager = SecretsManager.create(this.environmentVariables.RUNNER_SECRETS_DIRECTORY);
 
-    this.event = loadYamlFile<T>(`${environmentVariables.RUNNER_METADATA_DIRECTORY}/event.yaml`);
+    this.event = loadYamlFile(`${environmentVariables.RUNNER_METADATA_DIRECTORY}/event.yaml`);
     this.inputs = { ...(rest.inputs || {}), ...(this.event?.additionalProperties?.inputs || {}) };
   }
 
@@ -43,7 +43,7 @@ export class ContextManager<T extends GerritEventSnapshot & object = GerritEvent
     });
   }
 
-  get contextSnapshot(): ContextSnapshot<T> {
+  get contextSnapshot(): ContextSnapshot {
     return {
       env: this.environmentVariables,
       runner: {

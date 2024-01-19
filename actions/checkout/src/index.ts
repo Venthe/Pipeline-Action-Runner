@@ -2,7 +2,12 @@ import { checkoutCommands, context } from '@pipeline/core';
 import { shellMany } from '@pipeline/process';
 
 (async () => {
-  const projectUrl = `${context.internal.projectUrl}/${context.internal.event.metadata.projectName}`;
+  if (!(context.internal.event as any).metadata?.projectName) {
+    // FIME: Use projectName from the context
+    throw new Error();
+  }
+
+  const projectUrl = `${context.internal.projectUrl}/${(context.internal.event as any).metadata.projectName}`;
   const event: any = context.internal.event;
   await shellMany(
     checkoutCommands({

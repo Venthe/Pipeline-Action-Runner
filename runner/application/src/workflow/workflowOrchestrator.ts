@@ -50,13 +50,16 @@ export class WorkflowOrchestrator {
   }
 
   private static async downloadPipelines(contextSnapshot: ContextSnapshot) {
-    const projectUrl = `${contextSnapshot.internal.projectUrl}/${contextSnapshot.internal.event.metadata.projectName}`;
+    // FIXME: Strongly type event
+    const projectUrl = `${contextSnapshot.internal.projectUrl}/${(contextSnapshot.internal.event as any).metadata.projectName}`;
     await shellMany(
       checkoutCommands({
         repository: projectUrl,
-        revision: contextSnapshot.internal.event.metadata.revision,
+        // FIXME: Strongly type event
+        revision: (contextSnapshot.internal.event as any).metadata.revision,
         options: {
-          branchName: contextSnapshot.internal.event.metadata.branchName,
+          // FIXME: Strongly type event
+          branchName: (contextSnapshot.internal.event as any).metadata.branchName,
           depth: 1,
           quiet: false,
           sparseCheckout: ['.pipeline/']
@@ -79,7 +82,8 @@ export class WorkflowOrchestrator {
       switch (normalizeEvent(contextSnapshot.internal.eventName)) {
         case normalizeEvent('patchset-created'):
         case normalizeEvent('change-merged'):
-          return contextSnapshot.internal.event.additionalProperties.commit.subject;
+          // FIXME: Strongly type event
+          return (contextSnapshot.internal.event as any).additionalProperties.commit.subject;
         default:
           return normalizeEvent(contextSnapshot.internal.eventName);
       }

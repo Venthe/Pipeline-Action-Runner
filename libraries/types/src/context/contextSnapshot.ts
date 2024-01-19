@@ -1,6 +1,5 @@
 import { CurrentStatus, FinalStatus, InputOutput } from '../commonTypes';
 import { ContextEnvironmentVariables } from './environment';
-import { GerritEventSnapshot } from './gerritEventSnapshot';
 
 /**
  * This context changes for each job in a workflow run. You can access this context from any step in a job. This object
@@ -251,14 +250,14 @@ type EnvironmentVariablesSnapshot = {
   [key: string]: string | undefined;
 } & ContextEnvironmentVariables;
 
-export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
+export type InternalSnapshot = {
   /**
    * The full event webhook payload. You can access individual properties of the event using this context. This
    * object is identical to the webhook payload of the event that triggered the workflow run, and is different for
    * each event. The webhooks for each <SYSTEM> Actions event is linked in "Events that trigger workflows." For example,
    * for a workflow run triggered by the push event, this object contains the contents of the push webhook payload.
    **/
-  event: T;
+  event: unknown;
 
   /**
    * The default working directory on the runner for steps, and the default location of your repository when using
@@ -455,8 +454,8 @@ export type InternalSnapshot<T extends object = GerritEventSnapshot> = {
  * The top-level context available during any job or step in a workflow. This object contains all the properties
  * listed below.
  **/
-export interface ContextSnapshot<T extends object = GerritEventSnapshot> {
-  internal: InternalSnapshot<T>;
+export interface ContextSnapshot {
+  internal: InternalSnapshot;
   env: EnvironmentVariablesSnapshot;
   job?: JobSnapshot;
   jobs?: JobResultSnapshot;
