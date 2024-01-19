@@ -19,6 +19,7 @@ export interface SystemEnvironmentVariables {
   PIPELINE_VERSION_CONTROL_TYPE: string
   PIPELINE_VERSION_CONTROL_SSH_PORT: string
   PIPELINE_VERSION_CONTROL_SSH_HOST: string
+  PIPELINE_VERSION_CONTROL_SSH_USERNAME: string
 }
 
 export interface PipelineEnvironmentVariables {

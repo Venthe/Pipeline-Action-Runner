@@ -5,13 +5,8 @@ import { shellMany } from '@pipeline/process';
   if (context.env.PIPELINE_VERSION_CONTROL_TYPE !== 'ssh') {
     throw new Error()
   }
-  
-  if (!(context.internal.event as any).metadata?.projectName) {
-    // FIME: Use projectName from the context
-    throw new Error();
-  }
 
-  const projectUrl = `${context.internal.projectUrl}/${context.internal.repository}`;
+  const projectUrl = `ssh://${context.env.PIPELINE_VERSION_CONTROL_SSH_USERNAME}@${context.env.PIPELINE_VERSION_CONTROL_SSH_HOST}:${context.env.PIPELINE_VERSION_CONTROL_SSH_PORT}/${context.internal.repository}`;
   const event: any = context.internal.event;
   await shellMany(
     checkoutCommands({

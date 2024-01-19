@@ -22,9 +22,9 @@ export const checkout: CheckoutType = async (
   if (context.env.PIPELINE_VERSION_CONTROL_TYPE !== 'ssh') {
     throw new Error()
   }
-  
-  const projectUrl = `${context.internal.gerritUrl}/${project}`;
 
+  const projectUrl = `ssh://${context.env.PIPELINE_VERSION_CONTROL_SSH_USERNAME}@${context.env.PIPELINE_VERSION_CONTROL_SSH_HOST}:${context.env.PIPELINE_VERSION_CONTROL_SSH_PORT}/${project}`;
+  
   await shellMany(
     checkoutCommands({
       repository: projectUrl,
@@ -50,9 +50,8 @@ export const checkoutCommands = ({
   };
 }): string[] => {
   const depth = options?.depth ? `--depth=${options?.depth}` : '';
-  const initialRefspec = `'${
-    options?.initialRefspec ? options.initialRefspec : '+refs/heads/*:refs/remotes/origin/*'
-  }'`;
+  const initialRefspec = `'${options?.initialRefspec ? options.initialRefspec : '+refs/heads/*:refs/remotes/origin/*'
+    }'`;
   const verbosity = options?.quiet ? '--quiet' : '--progress';
   const sparseCheckout = [
     ...(options?.sparseCheckout || []).map(
@@ -66,8 +65,7 @@ export const checkoutCommands = ({
     `git config --add remote.origin.fetch ${initialRefspec}`,
     `git fetch --tags --force ${verbosity} ${depth} -- ${repository} '${revision}'`,
     ...sparseCheckout,
-    `git checkout ${verbosity} FETCH_HEAD ${
-      options?.branchName ? `-B ${options.branchName}` : '--force'
+    `git checkout ${verbosity} FETCH_HEAD ${options?.branchName ? `-B ${options.branchName}` : '--force'
     }`
   ];
 };

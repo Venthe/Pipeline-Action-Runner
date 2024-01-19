@@ -277,7 +277,6 @@ export type InternalSnapshot = {
   /**
    * The URL of the <SYSTEM> REST API.
    **/
-  gerritUrl: string;
   projectUrl: string;
   nexusUrl: string;
   jenkinsUrl: string;
