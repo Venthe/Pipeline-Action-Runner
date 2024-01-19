@@ -278,7 +278,6 @@ export type InternalSnapshot = {
    * The URL of the <SYSTEM> REST API.
    **/
   projectUrl: string;
-  jenkinsUrl: string;
   dockerHost?: string;
 
   /**
