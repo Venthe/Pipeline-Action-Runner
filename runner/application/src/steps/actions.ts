@@ -62,9 +62,9 @@ export class Action {
   }
 
   private async prepareActionDirectory(actionName: string, context: ContextManager) {
-    const { remote, project, revision, local } = this.extractName(actionName);
+    const { path, project, revision, local } = this.extractName(actionName);
 
-    if (remote) {
+    if (project) {
       debug('Loading remote action: ' + actionName);
       if (project === undefined || revision === undefined) {
         throw new Error(`Remote name expected for action name ${actionName}`);
@@ -83,7 +83,7 @@ export class Action {
         },
         context.contextSnapshot
       );
-      return `${context.contextSnapshot.internal.actionsDirectory}/${project}`;
+      return `${context.contextSnapshot.internal.actionsDirectory}/${project}` + (path ? `/${path}` : "");
     } else {
       if (local === undefined) {
         throw new Error(`Local path expected for action name ${actionName}`);
@@ -93,15 +93,19 @@ export class Action {
   }
 
   private extractName(actionName: string): {
-    remote?: string;
     project?: string;
     revision?: string;
     local?: string;
+    path?: string;
   } {
-    return (
-      (/^(?<remote>(?<project>.+)@(?<revision>.+))$|^(?<local>.+)$/i.exec(actionName)
-        ?.groups as any) || {}
-    );
+    const short = (/^(?<project>.+)@(?<revision>.+)$/i.exec(actionName)
+      ?.groups as any) || {};
+    const withPath = (/^(?<ref>.+)@(?<tag>.+)(?:\:(?<path>.+))$/i.exec(actionName)
+      ?.groups as any) || {};
+    const local = (/^^(?<local>.+)$/i.exec(actionName)
+      ?.groups as any) || {};
+
+    return {...short, ...withPath, ...local};
   }
 
   private loadActionDefinition(actionsDirectory: string): any {
