@@ -1,14 +1,15 @@
 import * as process from 'process';
 import { WorkflowOrchestrator } from './workflow/workflowOrchestrator';
-import { configureGit, exceptionMapper, saveObjectAsFile } from './utilities';
+import { exceptionMapper, saveObjectAsFile } from './utilities';
 import { error } from '@pipeline/core';
 import { ContextEnvironmentVariables } from '@pipeline/types';
+import { setup } from './utilities/setup';
 
 export const main = async () => {
   try {
     const env = process.env as ContextEnvironmentVariables;
 
-    await configureGit();
+    await setup();
     const workflowOrchestrator = await WorkflowOrchestrator.create(env);
     const result = await workflowOrchestrator.run();
 
