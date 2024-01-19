@@ -156,6 +156,16 @@ function upload_project() {
   upload_project_to_gerrit "${PROJECT_DIRECTORY}" "${PROJECT_NAME}"
 }
 
+function upload_actions() {
+  for d in actions/* ; do
+    upload_project "${d}" "${d}"
+  done
+}
+
+function upload_action() {
+  upload_project "actions/${1}" "actions/${1}"
+}
+
 function test() {
   echo ""
   echo "TESTING ${1}"
