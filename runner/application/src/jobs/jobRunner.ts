@@ -1,13 +1,10 @@
 import {
-  Container,
   FinalStatus,
   JobDefinition,
   JobOutput,
   RemoteJobDefinition
 } from '@pipeline/types';
 import { renderTemplate } from '../utilities/template';
-import { toContainer } from '../utilities/testcontainers';
-import { StartedTestContainer } from 'testcontainers';
 import { ContextManager } from '../context/contextManager';
 import { subtitle } from '@pipeline/utilities';
 import { StepRunner } from '../steps/stepRunner';
@@ -67,31 +64,7 @@ class LocalJobManager implements JobManager {
         result: 'skipped'
       };
     }
-    const services = Object.keys(this.jobDefinition.services ?? {})
-      .map((key) => ({ definition: this.jobDefinition?.services?.[key], name: key }))
-      .filter((a) => a.definition !== undefined)
-      .map((definition) => ({
-        container: toContainer(definition.definition as Container, definition.name),
-        name: definition.name
-      }));
-    const startedContainers: StartedTestContainer[] = [];
-    try {
-      for (const container of services) {
-        info(`Starting service ${container.name}`);
-        const startedContainer: StartedTestContainer = await container.container.start();
-        const logs = await startedContainer.logs();
-        logs
-          .on('data', (line) => process.stdout.write(`[${container.name}] ${line}`))
-          .on('err', (line) => process.stderr.write(`[${container.name}] ${line}`))
-          .on('end', () => process.stdout.write(`[${container.name}] Stream closed`));
-        startedContainers.push(startedContainer);
-      }
-      return await this.stepRunner.run();
-    } finally {
-      for (const container of startedContainers) {
-        await container.stop();
-      }
-    }
+    return await this.stepRunner.run();
   }
 }
 

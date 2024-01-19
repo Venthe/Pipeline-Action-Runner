@@ -28,7 +28,6 @@
     "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
     "nunjucks": "^3.2.4",
-    "process": "^0.11.10",
-    "testcontainers": "^10.5.0"
+    "process": "^0.11.10"
   }
 }
