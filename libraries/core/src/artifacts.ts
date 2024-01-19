@@ -39,7 +39,7 @@ export const download = async (
   }
 
   const nexusPath = pathStrategy(context, sourcePath, type);
-  const url = `${context.internal.nexusUrl}/${nexusPath}`;
+  const url = `${context.env.PIPELINE_FILE_STORAGE_URL}/${nexusPath}`;
   if (!silent) {
     console.debug('Downloading artifact', nexusPath, 'to', targetPath);
   }
@@ -60,7 +60,7 @@ export const upload = async (
   }
 
   const nexusPath = pathStrategy(context, targetPath ?? sourcePath, type);
-  const url = `${context.internal.nexusUrl}/${nexusPath}`;
+  const url = `${context.env.PIPELINE_FILE_STORAGE_URL}/${nexusPath}`;
   if (!silent) {
     console.debug('Uploading artifact', sourcePath, 'to', nexusPath);
   }

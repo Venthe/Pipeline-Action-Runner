@@ -61,7 +61,6 @@ export class ContextManager {
         // FIXME: This is incorrect URL
         projectUrl: this.environmentVariables.PIPELINE_GERRIT_URL,
         workflow: this.jobData.workflow,
-        nexusUrl: this.environmentVariables.PIPELINE_NEXUS_URL,
         pipelinesDirectory: this.environmentVariables.RUNNER_PIPELINE_DIRECTORY,
         actionsDirectory: this.environmentVariables.RUNNER_ACTIONS_DIRECTORY,
         binariesDirectory: this.environmentVariables.RUNNER_BINARIES_DIRECTORY,
