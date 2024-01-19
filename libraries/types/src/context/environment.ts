@@ -1,4 +1,4 @@
-export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables & SystemEnvironmentVariables;
+export type ContextEnvironmentVariables = RunnerEnvironmentVariables & PipelineEnvironmentVariables & SystemEnvironmentVariables & DebugEnvironmentVariables;
 
 export interface RunnerEnvironmentVariables {
   [key: string]: string | undefined;
@@ -26,7 +26,8 @@ export interface PipelineEnvironmentVariables {
   PIPELINE_JOB_NAME: string;
   PIPELINE_BUILD_ID: string;
   PIPELINE_WORKFLOW: string;
-  PIPELINE_NEXUS_URL: string;
-  PIPELINE_GERRIT_URL: string;
-  PIPELINE_DOCKER_URL: string;
+}
+
+export interface DebugEnvironmentVariables {
+  __DEBUG_SSH_PRIVATE_KEY?: string
 }

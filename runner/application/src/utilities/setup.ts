@@ -1,8 +1,11 @@
 import { shellMany } from "@pipeline/process";
-import { ContextEnvironmentVariables } from "@pipeline/types";
+import { ContextEnvironmentVariables, DebugEnvironmentVariables } from "@pipeline/types";
+import fs from 'fs';
 
 export const setup = async (env: ContextEnvironmentVariables) => {
     await configureGit();
+
+    setupSSHKeyForVersionControl(env);
 
     createRequiredDirectories(env)
 }
@@ -17,6 +20,13 @@ const configureGit = async () => {
         `git config --global --add safe.directory ${process.cwd()}`
     ]);
 };
+
+function setupSSHKeyForVersionControl(env: DebugEnvironmentVariables) {
+    if (env.__DEBUG_SSH_PRIVATE_KEY) {
+        fs.mkdirSync("/root/.ssh/", { recursive: true });
+        fs.writeFileSync("/root/.ssh/id_rsa", Buffer.from(env.__DEBUG_SSH_PRIVATE_KEY, 'base64'));
+    }
+}
 
 async function createRequiredDirectories(env: ContextEnvironmentVariables) {
     await shellMany(
