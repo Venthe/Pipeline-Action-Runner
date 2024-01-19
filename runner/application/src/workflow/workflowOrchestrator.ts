@@ -27,7 +27,6 @@ export class WorkflowOrchestrator {
   }
 
   private async postConstruct() {
-    await this.createRequiredDirectories();
     await WorkflowOrchestrator.downloadPipelines(this.contextManager.contextSnapshot);
     this.workflow = WorkflowOrchestrator.loadWorkflow(this.contextManager.contextSnapshot);
     this.contextManager.appendEnvironmentVariables(this.workflow.env);
@@ -39,13 +38,6 @@ export class WorkflowOrchestrator {
     this.jobRunner = this.prepareJobRunner(
       this.contextManager.contextSnapshot.internal.job,
       this.contextManager
-    );
-  }
-
-  private async createRequiredDirectories() {
-    await shellMany(
-      this.contextManager.getRunnerDirectories().map((directory) => `mkdir --parents ${directory}`),
-      { silent: true }
     );
   }
 

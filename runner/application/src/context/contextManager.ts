@@ -79,16 +79,6 @@ export class ContextManager {
     ContextManager.updateProcessEnvironmentVariables(this.environmentVariables);
   }
 
-  getRunnerDirectories = (): string[] =>
-    Object.keys(this.environmentVariables)
-      .filter(
-        (key) =>
-          key.toLowerCase().startsWith('RUNNER_'.toLowerCase()) &&
-          key.toLowerCase().endsWith('_DIRECTORY'.toLowerCase())
-      )
-      .map((key) => this.environmentVariables[key])
-      .filter((value) => value !== undefined) as string[];
-
   addEnv = (key: string, value: any) => {
     this.environmentVariables[key] = value;
 

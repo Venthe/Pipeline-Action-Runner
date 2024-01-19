@@ -1,7 +1,10 @@
 import { shellMany } from "@pipeline/process";
+import { ContextEnvironmentVariables } from "@pipeline/types";
 
-export const setup = async () => {
+export const setup = async (env: ContextEnvironmentVariables) => {
     await configureGit();
+
+    createRequiredDirectories(env)
 }
 
 const configureGit = async () => {
@@ -14,3 +17,20 @@ const configureGit = async () => {
         `git config --global --add safe.directory ${process.cwd()}`
     ]);
 };
+
+async function createRequiredDirectories(env: ContextEnvironmentVariables) {
+    await shellMany(
+        getRunnerDirectories(env).map((directory) => `mkdir --parents ${directory}`),
+        { silent: true }
+    );
+}
+
+const getRunnerDirectories = (env: ContextEnvironmentVariables): string[] =>
+    Object.keys(env)
+        .filter(
+            (key) =>
+                key.toLowerCase().startsWith('RUNNER_'.toLowerCase()) &&
+                key.toLowerCase().endsWith('_DIRECTORY'.toLowerCase())
+        )
+        .map((key) => env[key])
+        .filter((value) => value !== undefined) as string[];

@@ -9,7 +9,7 @@ export const main = async () => {
   try {
     const env = process.env as ContextEnvironmentVariables;
 
-    await setup();
+    await setup(env);
     const workflowOrchestrator = await WorkflowOrchestrator.create(env);
     const result = await workflowOrchestrator.run();
 
