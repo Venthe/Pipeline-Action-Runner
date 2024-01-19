@@ -102,6 +102,14 @@ function build_all() {
   build_container
 }
 
+function test() {
+  npm run test --workspace ${@}
+}
+
+function test_all() {
+  npm run test --workspaces
+}
+
 function create_gerrit_project() {
   local PROJECT_NAME="${1}"
   local NORMALIZED_PROJECT_NAME=`printf ${PROJECT_NAME} | sed 's/\//%2F/'`
