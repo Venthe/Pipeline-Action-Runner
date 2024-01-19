@@ -21,6 +21,7 @@ export interface SystemEnvironmentVariables {
   PIPELINE_VERSION_CONTROL_SSH_PORT: string
   PIPELINE_VERSION_CONTROL_SSH_HOST: string
   PIPELINE_VERSION_CONTROL_SSH_USERNAME: string
+  PIPELINE_DOCKER_URL: string
 }
 
 export interface PipelineEnvironmentVariables {
