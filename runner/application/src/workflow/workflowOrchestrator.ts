@@ -5,7 +5,6 @@ import { loadYamlFile, normalizeEvent } from '../utilities';
 import { shellMany } from '@pipeline/process';
 import { title } from '@pipeline/utilities';
 import { checkoutCommands, info } from '@pipeline/core';
-import { prepareDefaultEnvironmentVariables } from '../configuration/environment';
 import { renderTemplate } from '../utilities/template';
 import { JobData } from '../types';
 import { SecretsManager } from '../secrets/secretsManager';
@@ -24,7 +23,7 @@ export class WorkflowOrchestrator {
 
   private constructor(readonly env: ContextEnvironmentVariables, readonly jobData: JobData, readonly secretsManager: SecretsManager) {
     this.contextManager = ContextManager.forWorkflow({
-      environmentVariables: { ...env, ...prepareDefaultEnvironmentVariables() },
+      environmentVariables: env,
       jobData,
       secretsManager
     });

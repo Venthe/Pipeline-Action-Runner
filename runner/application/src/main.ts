@@ -1,15 +1,15 @@
 import * as process from 'process';
 import { WorkflowOrchestrator } from './workflow/workflowOrchestrator';
+import { PipelineEnvironmentVariables, SystemEnvironmentVariables } from '@pipeline/types';
 import { exceptionMapper } from './utilities';
 import { error } from '@pipeline/core';
-import { ContextEnvironmentVariables } from '@pipeline/types';
 import { loadJobData, setup } from './utilities/setup';
 import { SecretsManager } from './secrets/secretsManager';
+import { prepareDefaultEnvironmentVariables } from './configuration/environment';
 
 export const main = async () => {
+  const env = {...process.env as (PipelineEnvironmentVariables & SystemEnvironmentVariables), ...prepareDefaultEnvironmentVariables()};
   try {
-    const env = process.env as ContextEnvironmentVariables;
-
     await setup(env);
     const jobData = await loadJobData(env);
     const secretsManager = SecretsManager.create(env.RUNNER_SECRETS_DIRECTORY);
