@@ -43,6 +43,11 @@ function prepare_npm() {
   npm adduser --auth-type=legacy --registry "${_NEXUS_URL_NPM}"
 }
 
+function reset_npm() {
+  find . -type f | grep package-lock.json | grep -v node_modules | xargs -I{} rm {}
+  npm install
+}
+
 function clean_projects() {
   npm run clean --workspaces
 }
