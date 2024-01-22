@@ -1,6 +1,7 @@
 import {
   ActionStepDefinition,
   CompositeActionDefinition,
+  ContextSnapshot,
   DockerStepDefinition,
   JobOutput,
   JobStatus,
@@ -31,8 +32,8 @@ export class StepRunner {
   readonly managerName: string;
   private steps: (ActionStepDefinition | ShellStepDefinition)[] = [];
   private readonly contextManager: ContextManager;
+  private readonly progressCallback?: (contextSnapshot: ContextSnapshot, status: JobStatus) => Promise<void>
   private readonly outputs?: OutputMappings;
-  private informAboutProgress: boolean = true;
 
   public forCompositeStep(
     step: ActionStepDefinition<any>,
@@ -53,46 +54,38 @@ export class StepRunner {
       managerName: `${this.managerName}|${compositeStep.name}`,
       outputs
     });
-    stepRunner.informAboutProgress = false
     return stepRunner;
   }
 
-  public static forJob(contextManager: ContextManager): StepRunner {
+  public static forJob(contextManager: ContextManager, progressCallback?: (contextSnapshot: ContextSnapshot, status: JobStatus) => Promise<void>): StepRunner {
     return new StepRunner({
       stepDefinitions: contextManager.stepsDefinitions,
       contextManager: contextManager,
       managerName: contextManager.contextSnapshot.internal.job,
-      outputs: contextManager.outcomes
+      outputs: contextManager.outcomes,
+      progressCallback
     });
   }
 
-  constructor({
-    stepDefinitions,
-    contextManager,
-    ...rest
-  }: {
+  constructor(props: {
     stepDefinitions: (ActionStepDefinition | ShellStepDefinition)[];
     contextManager: ContextManager;
     managerName: string;
     outputs?: OutputMappings;
+    progressCallback?: (contextSnapshot: ContextSnapshot, status: JobStatus) => Promise<void>
   }) {
-    this.managerName = rest.managerName;
-    this.steps = stepDefinitions;
-    this.contextManager = contextManager;
-    this.outputs = rest.outputs;
+    this.managerName = props.managerName;
+    this.steps = props.stepDefinitions;
+    this.contextManager = props.contextManager;
+    this.outputs = props.outputs;
   }
 
   public async run(): Promise<StepRunnerResult> {
     try {
-      for(let index = 0; index< this.steps.length; index++) {
+      for (let index = 0; index < this.steps.length; index++) {
         const mappedStep = StepFactory.from(this.steps[index], index);
 
-        info(
-          step(`[${mappedStep.id}][${this.managerName}]: ${mappedStep.name}`) +
-          ` - ${this.stateSuffix(mappedStep)}`
-        );
-
-        if (this.informAboutProgress) { await updateStepStatus(this.contextManager.contextSnapshot, index, 'in_progress') }
+        await this.progressCallback?.(this.contextManager.contextSnapshot, 'in_progress');
 
         if (!this.isAnyStepConclusionFailure() || this.shouldRunFromScript(mappedStep)) {
           const result: ActionResult = await mappedStep.run(this, this.contextManager);
@@ -112,33 +105,19 @@ export class StepRunner {
           } as StepResult);
         }
 
-        if (this.informAboutProgress) { await updateStepStatus(this.contextManager.contextSnapshot, index, this.contextManager.getResult(mappedStep.id).outcome) }
-
-        info(`[Step finished] ${mappedStep.name} - ${this.contextManager.getResult(mappedStep.id).outcome}`)
-        debug(
-          `[Step finished] ${mappedStep.name}\nJSON.stringify(this.outputs, undefined, 2)\nJSON.stringify(this.contextManager.contextSnapshot.steps, undefined, 2)`
-        );
+        await this.progressCallback?.(this.contextManager.contextSnapshot, this.contextManager.getResult(mappedStep.id).outcome);
       }
 
-      const outputs = rerenderTemplate<JobOutput>(
-        this.outputs ?? {},
-        this.contextManager.contextSnapshot
-      );
-      debug(`[Runner finished] ${this.managerName}\n
-        ${JSON.stringify(this.outputs, undefined, 2)}\n
-        ${JSON.stringify(this.contextManager.contextSnapshot.steps, undefined, 2)}
-      `);
+      const outputs = rerenderTemplate<JobOutput>(this.outputs ?? {}, this.contextManager.contextSnapshot);
       return this.isAnyStepConclusionFailure()
         ? { result: 'failure' }
         : {
-            result: 'success',
-            outputs: outputs
-          };
+          result: 'success',
+          outputs: outputs
+        };
     } catch (e: any) {
       error(exceptionMapper(e));
-      return {
-        result: 'failure'
-      };
+      return { result: 'failure' };
     }
   }
 

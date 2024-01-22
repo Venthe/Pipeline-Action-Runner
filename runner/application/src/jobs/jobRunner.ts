@@ -6,7 +6,7 @@ import { ContextManager } from '../context/contextManager';
 import { subtitle } from '@pipeline/utilities';
 import { StepRunner } from '../steps/stepRunner';
 import { info } from '../utilities/log';
-import { updateJobStatus } from '../utilities/orchestrator';
+import { updateJobStatus, updateStepStatus } from '../utilities/orchestrator';
 
 export interface SingleJobResult {
   result: JobStatus;
@@ -19,7 +19,9 @@ export class JobRunner {
   constructor(
     private readonly contextManager: ContextManager
   ) {
-    this.stepRunner = StepRunner.forJob(contextManager);
+    
+    if (this.informAboutProgress) { await  }
+    this.stepRunner = StepRunner.forJob(contextManager, (context, status) => updateStepStatus(context, status));
   }
 
   async run(): Promise<SingleJobResult> {

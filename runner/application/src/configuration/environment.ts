@@ -5,7 +5,8 @@ import { RunnerEnvironmentVariables } from '@pipeline/types'
 export const prepareDefaultEnvironmentVariables = (): RunnerEnvironmentVariables => {
   const runnerEnvs: RunnerEnvironmentVariables = {
     RUNNER_CACHE_DIRECTORY: '/runner/cache',
-    RUNNER_MANAGER_DIRECTORY: '/runner',
+    RUNNER_MANAGER_DIRECTORY: '/tmp/runner',
+    RUNNER_TEMP_DIRECTORY: '/runner',
     RUNNER_PIPELINE_DIRECTORY: '/runner/pipeline',
     RUNNER_METADATA_DIRECTORY: '/runner/metadata',
     RUNNER_BINARIES_DIRECTORY: '/runner/bin',

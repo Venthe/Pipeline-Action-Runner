@@ -5,13 +5,13 @@ export interface RunnerEnvironmentVariables {
 
   RUNNER_CACHE_DIRECTORY: string;
   RUNNER_MANAGER_DIRECTORY: string;
+  RUNNER_TEMP_DIRECTORY: string;
   RUNNER_METADATA_DIRECTORY: string;
   RUNNER_WORKSPACE_DIRECTORY: string;
   RUNNER_BINARIES_DIRECTORY: string;
   RUNNER_SECRETS_DIRECTORY: string;
   RUNNER_ENV_DIRECTORY: string;
   RUNNER_ACTIONS_DIRECTORY: string;
-  RUNNER_PIPELINE_DIRECTORY: string;
 }
 
 export interface SystemEnvironmentVariables {

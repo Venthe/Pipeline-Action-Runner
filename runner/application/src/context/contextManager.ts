@@ -12,6 +12,7 @@ import { SecretsManager } from '../secrets/secretsManager';
 import { isDebug } from '@pipeline/core';
 import { throwThis } from '@pipeline/utilities';
 import { Inputs, JobData } from '../types';
+import { mapArchitecture, mapOS } from './runnerUtils';
 
 export class ContextManager {
   private readonly secretsManager: SecretsManager;
@@ -54,12 +55,18 @@ export class ContextManager {
   }
 
   get contextSnapshot(): ContextSnapshot {
+    if (!process.env.HOSTNAME) {
+      throw new Error("Name not found");
+    }
+
     return {
       env: this.environmentVariables,
       runner: {
-        arch: process.arch,
-        os: process.platform,
-        debug: isDebug()
+        arch: mapArchitecture(process.arch),
+        os: mapOS(process.platform),
+        name: process.env.HOSTNAME,
+        temp: this.environmentVariables.RUNNER_MANAGER_DIRECTORY,
+        debug: isDebug() ? "1" : undefined
       },
       secrets: this.secretsManager.retrieve(),
       internal: {
@@ -71,14 +78,13 @@ export class ContextManager {
         workspace: this.environmentVariables.RUNNER_WORKSPACE_DIRECTORY,
         orchestratorUrl: this.environmentVariables.PIPELINE_ORCHESTRATOR_URL,
         workflow: this.jobData.workflow,
-        pipelinesDirectory: this.environmentVariables.RUNNER_PIPELINE_DIRECTORY,
         actionsDirectory: this.environmentVariables.RUNNER_ACTIONS_DIRECTORY,
         binariesDirectory: this.environmentVariables.RUNNER_BINARIES_DIRECTORY,
         job: this.environmentVariables.PIPELINE_JOB_NAME
       },
       ...{ inputs: this.inputs },
       ...{ steps: this.steps }
-    } as any;
+    }
   }
 
   appendEnvironmentVariables(env: { [p: string]: string | undefined } | undefined) {
